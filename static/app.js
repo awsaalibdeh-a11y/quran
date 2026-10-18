@@ -14,6 +14,17 @@ const RECITERS = [
   { id: "ar.saoodshuraym", en: "Saud Ash-Shuraim", ar: "سعود الشريم", kbps: 64, i: "ش" },
   { id: "ar.hudhaify", en: "Ali Al-Hudhaify", ar: "علي الحذيفي", kbps: 128, i: "ذ" },
   { id: "ar.muhammadayyoub", en: "Muhammad Ayyub", ar: "محمد أيوب", kbps: 128, i: "أ" },
+  { id: "ar.shaatree", en: "Abu Bakr Ash-Shatri", ar: "أبو بكر الشاطري", kbps: 128, i: "ط" },
+  { id: "ar.ahmedajamy", en: "Ahmed Al-Ajamy", ar: "أحمد بن علي العجمي", kbps: 128, i: "ج" },
+  { id: "ar.muhammadjibreel", en: "Muhammad Jibreel", ar: "محمد جبريل", kbps: 128, i: "ج" },
+  { id: "ar.husarymujawwad", en: "Al-Husary (Mujawwad)", ar: "الحصري (مجوّد)", kbps: 128, i: "ح" },
+  { id: "ar.minshawimujawwad", en: "Al-Minshawi (Mujawwad)", ar: "المنشاوي (مجوّد)", kbps: 64, i: "ن" },
+  { id: "ar.abdulsamad", en: "Abdul Basit (Mujawwad)", ar: "عبد الباسط (مجوّد)", kbps: 64, i: "ب" },
+  { id: "ar.abdullahbasfar", en: "Abdullah Basfar", ar: "عبد الله بصفر", kbps: 64, i: "ص" },
+  { id: "ar.hanirifai", en: "Hani Ar-Rifai", ar: "هاني الرفاعي", kbps: 64, i: "ر" },
+  { id: "ar.aymanswoaid", en: "Ayman Suwaid", ar: "أيمن سويد", kbps: 64, i: "ي" },
+  { id: "ar.ibrahimakhbar", en: "Ibrahim Al-Akhdar", ar: "إبراهيم الأخضر", kbps: 32, i: "خ" },
+  { id: "ar.parhizgar", en: "Shahriar Parhizgar", ar: "شهريار پرهيزگار", kbps: 48, i: "پ" },
 ];
 const FONTS = { scheherazade: '"Scheherazade New"', amiri: '"Amiri Quran"', naskh: '"Noto Naskh Arabic"' };
 
@@ -140,6 +151,7 @@ async function viewHome() {
       ${tile("#/ramadan", ICON.moon, L("Ramadan", "رمضان"))}
       ${tile("#/hifz", ICON.brain, L("Memorize", "الحفظ"))}
     </div>
+    <a class="card gamecard" href="#/game"><span class="gc-art">🌙</span><div><b>${L("Noor Quest", "رحلة نور")}</b><span>${L("A jump-and-run game with Quran questions", "لعبة قفز وجري مع أسئلة عن القرآن")}</span></div><span class="btn">${L("Play", "العب")}</span></a>
     <div class="sec">${t("daily")}</div><div id="daily"></div>
     <div class="sec">${L("Popular", "سور مختارة")}</div>
     <div class="quick">${[[18, 1, "Al-Kahf", "الكهف"], [36, 1, "Ya-Sin", "يس"], [67, 1, "Al-Mulk", "الملك"], [2, 255, "Ayat al-Kursi", "آية الكرسي"], [55, 1, "Ar-Rahman", "الرحمن"], [56, 1, "Al-Waqi'ah", "الواقعة"], [2, 285, "End of Al-Baqarah", "خواتيم البقرة"]]
@@ -438,5 +450,5 @@ Object.assign(window, { store, player, S, saveS, route, applyLook, toggleMark, $
   RECITERS, reciter, audioCache, localUrl, VIEWS, dayKey, today, streakNow, todayCount, tile, surahRow });
 window.heroCard = () => { };                           // extras.js draws the dates and prayer times
 applyLook();
-setTimeout(route, 0);                                  // after extras.js and recite.js have added their pages
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", route); else setTimeout(route, 0);   // after the other files have added their pages
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => { });

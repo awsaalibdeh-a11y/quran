@@ -122,8 +122,7 @@ window.noorKDay = d => { const K = store.get("khatma"); K.done[d] = !K.done[d]; 
 /* ---------- Hijri calendar with the Islamic days ---------- */
 const EVENTS = [[1, 1, "Islamic New Year", "رأس السنة الهجرية"], [1, 10, "Ashura", "عاشوراء"], [9, 1, "Ramadan begins", "بداية رمضان"], [9, 21, "Last ten nights", "العشر الأواخر"],
   [10, 1, "Eid al-Fitr", "عيد الفطر"], [12, 1, "First ten days of Dhul Hijjah", "العشر من ذي الحجة"], [12, 9, "Day of Arafah", "يوم عرفة"], [12, 10, "Eid al-Adha", "عيد الأضحى"]];
-function hparts(d) { const f = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura-nu-latn", { day: "numeric", month: "numeric", year: "numeric" });
-  const p = Object.fromEntries(f.formatToParts(d).map(x => [x.type, x.value])); return { d: +p.day, m: +p.month, y: parseInt(p.year) }; }
+const hparts = d => { const h = noorHijri.hijri(d); return { d: h.d, m: h.m, y: h.y }; };
 function viewCalendar() {
   const now = new Date(); now.setHours(12, 0, 0, 0);
   const up = [];                                                              // the next year of Islamic days, found by walking day by day
@@ -134,7 +133,7 @@ function viewCalendar() {
   // this Hijri month as a grid
   const h0 = hparts(now); let start = new Date(now.getTime() - (h0.d - 1) * 864e5);
   const days = []; for (let i = 0; i < 31; i++) { const d = new Date(start.getTime() + i * 864e5), h = hparts(d); if (h.m !== h0.m) break; days.push([d, h]); }
-  const month = new Intl.DateTimeFormat(isAr() ? "ar-SA-u-ca-islamic-umalqura" : "en-u-ca-islamic-umalqura", { month: "long", year: "numeric" }).format(now);
+  const cal = noorHijri.hijriCal(), month = new Intl.DateTimeFormat(isAr() ? `ar-SA-u-ca-${cal}` : `en-u-ca-${cal}`, { month: "long", year: "numeric" }).format(new Date(now.getTime() + (S.hadj || 0) * 864e5));
   const wk = isAr() ? ["ح", "ن", "ث", "ر", "خ", "ج", "س"] : ["S", "M", "T", "W", "T", "F", "S"];
   const pad = days[0][0].getDay();
   app.innerHTML = topbar(`<h1>${L("Hijri calendar", "التقويم الهجري")}</h1>`) + `<div class="wrap">
@@ -146,7 +145,14 @@ function viewCalendar() {
     <div class="card listcard"><div class="list">${up.map(([d, e, i]) => `<div class="row"><div class="mid"><div class="t1">${isAr() ? e[3] : e[2]}</div>
       <div class="t2">${d.toLocaleDateString(isAr() ? "ar-EG" : "en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</div></div>
       <span class="hstate ${i < 30 ? "done" : ""}">${i === 0 ? L("Today", "اليوم") : `${L("in", "بعد")} ${num(i)} ${L("days", "يومًا")}`}</span></div>`).join("")}</div></div>
-    <p class="lead" style="font-size:12.5px;margin-top:10px">${L("Umm al-Qura calendar. Your country may start a month a day earlier or later by moon sighting.", "حسب تقويم أم القرى. قد يبدأ الشهر في بلدك قبل أو بعد يوم بحسب رؤية الهلال.")}</p></div>`;
+    <div class="sec">${L("Calendar", "التقويم")}</div>
+    <div class="card" style="padding:4px 14px">
+      <div class="opt"><span class="l">${L("Based on", "حسب")}<div class="d">${S.loc ? (S.loc.name || L("your location", "موقعك")) : L("no location set", "لم يُحدَّد الموقع")} · ${noorHijri.HCAL_NAMES[cal][isAr() ? 1 : 0]}</div></span>
+        <select class="sel" onchange="S.hcal=this.value; saveS(); route()">${[["auto", L("Automatic (by location)", "تلقائي (حسب الموقع)")], ["islamic-umalqura", noorHijri.HCAL_NAMES["islamic-umalqura"][isAr() ? 1 : 0]], ["islamic", noorHijri.HCAL_NAMES.islamic[isAr() ? 1 : 0]], ["islamic-civil", noorHijri.HCAL_NAMES["islamic-civil"][isAr() ? 1 : 0]]]
+          .map(([v, l]) => `<option value="${v}" ${(S.hcal || "auto") === v ? "selected" : ""}>${l}</option>`).join("")}</select></div>
+      <div class="opt"><span class="l">${L("Adjust by days", "تعديل بالأيام")}<div class="d">${L("If your country announced the month a day earlier or later", "إذا أعلن بلدك بداية الشهر قبل أو بعد يوم")}</div></span>
+        <div class="seg">${[-2, -1, 0, 1, 2].map(v => `<button class="${(S.hadj || 0) === v ? "on" : ""}" onclick="S.hadj=${v}; saveS(); route()">${v > 0 ? "+" : ""}${num(v)}</button>`).join("")}</div></div>
+      ${S.loc ? "" : `<div class="opt"><span class="l">${L("Set your location for the right calendar", "حدد موقعك للتقويم الصحيح")}</span><button class="btn soft" onclick="noorLocate()">${ICON.pin}${L("Set", "حدد")}</button></div>`}</div></div>`;
   nav("more");
 }
 

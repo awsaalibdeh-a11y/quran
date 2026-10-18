@@ -12,7 +12,7 @@ from flask import Flask, jsonify, render_template, request, send_from_directory
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 Q = os.path.join(ROOT, "static", "q")
-VERSION = "2.1"
+VERSION = "2.2"
 
 app = Flask(__name__)
 app.config["JSON_AS_ASCII"] = False
@@ -133,7 +133,7 @@ def transcribe():
 
 
 RECITER_KBPS = {"ar.mahermuaiqly": 128, "ar.alafasy": 128, "ar.abdulbasitmurattal": 64, "ar.husary": 128, "ar.minshawi": 128,
-                "ar.abdurrahmaansudais": 64, "ar.saoodshuraym": 64, "ar.hudhaify": 128, "ar.muhammadayyoub": 128}
+                "ar.abdurrahmaansudais": 64, "ar.saoodshuraym": 64, "ar.hudhaify": 128, "ar.muhammadayyoub": 128, "ar.shaatree": 128, "ar.ahmedajamy": 128, "ar.muhammadjibreel": 128, "ar.husarymujawwad": 128, "ar.minshawimujawwad": 64, "ar.abdulsamad": 64, "ar.abdullahbasfar": 64, "ar.hanirifai": 64, "ar.aymanswoaid": 64, "ar.ibrahimakhbar": 32, "ar.parhizgar": 48}
 
 
 @app.get("/audio/<reciter>/<int:g>.mp3")

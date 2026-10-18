@@ -82,15 +82,28 @@ const CITIES = [["Makkah", "مكة", 21.4225, 39.8262], ["Madinah", "المدي�
   ["Amman", "عمّان", 31.9454, 35.9284], ["Jerusalem", "القدس", 31.7683, 35.2137], ["Dubai", "دبي", 25.2048, 55.2708], ["Doha", "الدوحة", 25.2854, 51.531], ["Kuwait", "الكويت", 29.3759, 47.9774],
   ["Istanbul", "إسطنبول", 41.0082, 28.9784], ["London", "لندن", 51.5072, -0.1276], ["New York", "نيويورك", 40.7128, -74.006], ["Toronto", "تورونتو", 43.6532, -79.3832], ["Karachi", "كراتشي", 24.8607, 67.0011]];
 
-/* ---------- Hijri date and Ramadan ---------- */
+/* ---------- Hijri date and Ramadan ----------
+   The Arabian Peninsula follows the Umm al-Qura calendar; elsewhere the months start by moon sighting, which the astronomical
+   calendar follows more closely. The calendar is picked from the saved location, and a ±2 day adjustment matches the local announcement. */
+const GULF = ({ lat, lng }) => lat > 12 && lat < 32.5 && lng > 34.5 && lng < 60 && !(lat > 29.6 && lng < 47.6) && !(lng < 37 && lat > 27.5);
+function hijriCal() {
+  if (S.hcal && S.hcal !== "auto") return S.hcal;
+  return !S.loc || GULF(S.loc) ? "islamic-umalqura" : "islamic";
+}
+const HCAL_NAMES = { "islamic-umalqura": ["Umm al-Qura (Saudi Arabia)", "أم القرى (السعودية)"], "islamic": ["Astronomical (moon sighting)", "فلكي (رؤية الهلال)"], "islamic-civil": ["Tabular (civil)", "الحسابي"] };
+function hijriParts(d, cal) {
+  const f = new Intl.DateTimeFormat(`en-u-ca-${cal}-nu-latn`, { day: "numeric", month: "numeric", year: "numeric" });
+  const p = Object.fromEntries(f.formatToParts(d).map(x => [x.type, x.value])); return { d: +p.day, m: +p.month, y: parseInt(p.year) };
+}
 function hijri(d = new Date()) {
   try {
-    const f = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura-nu-latn", { day: "numeric", month: "numeric", year: "numeric" });
-    const parts = Object.fromEntries(f.formatToParts(d).map(p => [p.type, p.value]));
-    const text = new Intl.DateTimeFormat(isAr() ? "ar-SA-u-ca-islamic-umalqura" : "en-u-ca-islamic-umalqura", { day: "numeric", month: "long", year: "numeric" }).format(d);
-    return { d: +parts.day, m: +parts.month, y: parseInt(parts.year), text };
+    const cal = hijriCal(), shifted = new Date(d.getTime() + (S.hadj || 0) * 864e5);
+    const parts = hijriParts(shifted, cal);
+    const text = new Intl.DateTimeFormat(isAr() ? `ar-SA-u-ca-${cal}` : `en-u-ca-${cal}`, { day: "numeric", month: "long", year: "numeric" }).format(shifted);
+    return { ...parts, text, cal };
   } catch { return { d: 0, m: 0, y: 0, text: "" }; }
 }
+window.noorHijri = { hijri, hijriCal, hijriParts, HCAL_NAMES };
 function isRamadan() { return S.ramadan === "on" || (S.ramadan === "auto" && hijri().m === 9); }
 function ramadanDay() { const h = hijri(); return h.m === 9 ? h.d : Math.min(30, Math.max(1, store.get("ramDayManual", 1))); }
 
@@ -236,7 +249,7 @@ function viewMore() {
     ${tile("#/adhkar/morning", ICON.sun, L("Morning adhkar", "أذكار الصباح"))}${tile("#/adhkar/evening", ICON.moon, L("Evening adhkar", "أذكار المساء"))}${tile("#/tasbih", ICON.beads, t("tasbih"))}
     ${tile("#/qibla", ICON.compass, L("Qibla", "القبلة"))}${tile("#/names", ICON.star, L("99 Names", "الأسماء الحسنى"))}${tile("#/duas", ICON.book, L("Quran duas", "أدعية قرآنية"))}
     ${tile("#/khatma", ICON.quran, L("Khatma plan", "خطة الختمة"))}${tile("#/notes", ICON.mark, L("My notes", "ملاحظاتي"))}${tile("#/calendar", ICON.moon, L("Hijri calendar", "التقويم الهجري"))}
-    ${tile("#/quiz", ICON.brain, L("Quiz", "مسابقة"))}${tile("#/zakat", ICON.grid, L("Zakat", "الزكاة"))}${tile("#/prayer", ICON.mosque, L("Prayer tracker", "متابعة الصلوات"))}<a class="tile" href="javascript:openSettings()"><span class="ic">${ICON.gear}</span>${t("settings")}</a></div>
+    ${tile("#/game", ICON.play, L("Noor Quest game", "لعبة رحلة نور"))}${tile("#/quiz", ICON.brain, L("Quiz", "مسابقة"))}${tile("#/zakat", ICON.grid, L("Zakat", "الزكاة"))}${tile("#/prayer", ICON.mosque, L("Prayer tracker", "متابعة الصلوات"))}<a class="tile" href="javascript:openSettings()"><span class="ic">${ICON.gear}</span>${t("settings")}</a></div>
     <div class="sec">${L("Works without internet", "يعمل دون إنترنت")}</div>
     <div class="card" style="color:var(--muted);font-size:14.5px;line-height:1.8">${L("Reading, tafsir, prayer times, Qibla, adhkar, tasbih, memorizing, Ramadan mode and your streak all work offline. Save the whole Quran in Settings, and download surahs in Listen to hear them offline. Reciting and full-text search need the internet.",
       "القراءة والتفسير ومواقيت الصلاة والقبلة والأذكار والمسبحة والحفظ ووضع رمضان وسلسلة الأيام تعمل كلها دون إنترنت. احفظ القرآن كاملًا من الإعدادات، وحمّل السور من صفحة الاستماع. التسميع والبحث في الآيات يحتاجان إلى إنترنت.")}</div>
