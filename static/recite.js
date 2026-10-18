@@ -211,5 +211,6 @@ function finish() {
     <div class="rtext small" style="margin-top:18px">${R.words.map((w, i) => `<span class="rw ${w.state || "missed"}">${w.text}${w.end ? `<span class="mark">﴿${arNum(w.end)}﴾</span>` : ""}</span>`).join(" ")}</div>
     <div class="rbtns"><a class="btn ghost" href="#/s/${R.s}/${R.from}">${ar ? "اقرأ المقطع" : "Read the passage"}</a><button class="btn" onclick="location.hash='#/recite/${R.s}/${R.from}'; route()">${ar ? "حاول مرة أخرى" : "Try again"}</button></div></div>`;
   R.words = [];
+  if (window.noorReciteDone) noorReciteDone(R.s, R.from, R.to, score);
 }
 })();

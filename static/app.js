@@ -135,8 +135,10 @@ async function viewHome() {
   const idx = await index();
   const h = new Date().getHours();
   const lastS = last && idx.surahs[last.s - 1];
-  app.innerHTML = topbar(`<div class="brand"><img src="/static/icon-192.png" alt="">Noor</div>`, false) + `<div class="wrap">
+  const linked = store.get("hb", null);
+  app.innerHTML = topbar(`<div class="brand"><img src="/static/icon-192.png" alt="">Noor</div>`, false, `<a class="ib" href="#/account" aria-label="Account" style="font-size:20px">${linked ? esc(linked.me.emoji || "👤") : "👤"}</a>`) + `<div class="wrap">
     <div id="hero"></div>
+    <div id="homeTasks"></div>
     <div class="sec">${t("hi")[h < 12 ? 0 : h < 17 ? 1 : 2]}</div>
     <a class="card cont" href="${lastS ? `#/s/${last.s}/${last.a}` : "#/s/1"}"><div class="t"><div class="k">${lastS ? t("cont") : t("start")}</div>
       <div class="n">${esc(lastS ? sName(lastS) : t("fatiha"))}</div>${lastS ? `<div class="s">${t("playingAyah")} ${num(last.a)} ${t("ofS")} ${num(lastS.count)}</div>` : ""}</div>
@@ -159,7 +161,7 @@ async function viewHome() {
     <div class="quick">${[[18, 1, "Al-Kahf", "الكهف"], [36, 1, "Ya-Sin", "يس"], [67, 1, "Al-Mulk", "الملك"], [2, 255, "Ayat al-Kursi", "آية الكرسي"], [55, 1, "Ar-Rahman", "الرحمن"], [56, 1, "Al-Waqi'ah", "الواقعة"], [2, 285, "End of Al-Baqarah", "خواتيم البقرة"]]
       .map(([s, a, en, ar]) => `<a class="pill" href="#/s/${s}/${a}">${isAr() ? ar : en}</a>`).join("")}</div>
     <div class="foot"><b>${t("made")} Awsaa</b><br>${t("text")}${NOOR.apk ? `<br><a href="/noor.apk" style="color:var(--green);font-weight:700">${L("Get the Android app", "حمّل تطبيق أندرويد")}</a>` : ""}</div></div>`;
-  nav("home"); heroCard(); daily(idx);
+  nav("home"); heroCard(); daily(idx); if (window.noorHomeTasks) noorHomeTasks();
 }
 const tile = (href, ic, label) => `<a class="tile" href="${href}"><span class="ic">${ic}</span>${label}</a>`;
 function streakCard() {

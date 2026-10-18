@@ -1,6 +1,6 @@
 // Noor offline: the app shell is cached on install; the Quran files are kept once read (or all at once from Settings).
-const SHELL = "noor-shell-v6", DATA = "noor-data-v1";
-const FILES = ["/", "/static/app.css?v=2.3", "/static/app.js?v=2.3", "/static/extras.js?v=2.3", "/static/recite.js?v=2.3", "/static/more.js?v=2.3", "/static/game.js?v=2.3", "/static/sheikh.js?v=2.3", "/static/icon-192.png", "/static/icon-512.png", "/manifest.webmanifest", "/static/q/index.json?v=1"];
+const SHELL = "noor-shell-v7", DATA = "noor-data-v1";
+const FILES = ["/", "/static/app.css?v=2.4", "/static/app.js?v=2.4", "/static/extras.js?v=2.4", "/static/recite.js?v=2.4", "/static/more.js?v=2.4", "/static/game.js?v=2.4", "/static/sheikh.js?v=2.4", "/static/account.js?v=2.4", "/static/icon-192.png", "/static/icon-512.png", "/manifest.webmanifest", "/static/q/index.json?v=1"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(SHELL).then(c => c.addAll(FILES)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== SHELL && k !== DATA && !k.startsWith("noor-font") && !k.startsWith("noor-audio")).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener("fetch", e => {

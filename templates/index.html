@@ -31,12 +31,13 @@
 </div>
 <div id="sheet" class="sheet-wrap" hidden><div class="sheet" id="sheetBody"></div></div>
 <div id="toast" class="toast" hidden></div>
-<script>window.NOOR = { version: "{{ version }}", apk: {{ 'true' if apk else 'false' }} };</script>
+<script>window.NOOR = { version: "{{ version }}", apk: {{ 'true' if apk else 'false' }}, hb: "{{ homebase }}" };</script>
 <script src="/static/app.js?v={{ version }}"></script>
 <script src="/static/extras.js?v={{ version }}"></script>
 <script src="/static/recite.js?v={{ version }}"></script>
 <script src="/static/more.js?v={{ version }}"></script>
 <script src="/static/game.js?v={{ version }}"></script>
 <script src="/static/sheikh.js?v={{ version }}"></script>
+<script src="/static/account.js?v={{ version }}"></script>
 </body>
 </html>

@@ -12,7 +12,8 @@ from flask import Flask, Response, jsonify, render_template, request, send_from_
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 Q = os.path.join(ROOT, "static", "q")
-VERSION = "2.3"
+VERSION = "2.4"
+HOMEBASE_URL = os.environ.get("HOMEBASE_URL", "https://homebase-family.onrender.com").rstrip("/")
 
 app = Flask(__name__)
 app.config["JSON_AS_ASCII"] = False
@@ -87,7 +88,7 @@ def search(q, limit=60):
 
 @app.get("/")
 def home():
-    return render_template("index.html", version=VERSION, apk=os.path.exists(os.path.join(ROOT, "static", "noor.apk")) and "AwsaaApp" not in request.headers.get("User-Agent", ""))
+    return render_template("index.html", version=VERSION, homebase=os.environ.get("HOMEBASE_URL", HOMEBASE_URL).rstrip("/"), apk=os.path.exists(os.path.join(ROOT, "static", "noor.apk")) and "AwsaaApp" not in request.headers.get("User-Agent", ""))
 
 
 @app.get("/api/search")
