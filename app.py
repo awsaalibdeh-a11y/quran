@@ -12,7 +12,7 @@ from flask import Flask, jsonify, render_template, request, send_from_directory
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 Q = os.path.join(ROOT, "static", "q")
-VERSION = "2.0"
+VERSION = "2.1"
 
 app = Flask(__name__)
 app.config["JSON_AS_ASCII"] = False

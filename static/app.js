@@ -79,7 +79,7 @@ function applyLook() {
   const r = document.documentElement;
   r.dataset.theme = S.theme; r.lang = S.lang; r.dir = isAr() ? "rtl" : "ltr";
   r.style.setProperty("--ar", S.ar + "px"); r.style.setProperty("--qf", FONTS[S.font] || FONTS.scheherazade);
-  $('meta[name="theme-color"]').content = S.theme === "dark" ? "#0b110e" : "#f4f7f5";
+  $('meta[name="theme-color"]').content = S.theme === "dark" ? "#0b110e" : S.theme === "sepia" ? "#f5efe1" : "#f4f7f5";
 }
 
 /* ---------- data ---------- */
@@ -208,17 +208,19 @@ async function viewSurah(n, focus) {
   const info = idx.surahs[n - 1];
   const isMarked = a => bookmarks.some(b => b.s === n && b.a === a);
   let juzSeen = data.ayahs[0].juz;
+  const marks = window.noorMarks ? noorMarks() : {};
   const body = S.mushaf
     ? `<div class="mushaf">${data.ayahs.map(a => `<span class="w" id="a${a.n}" data-a="${a.n}">${a.ar}<span class="mark">﴿${arNum(a.n)}﴾</span></span>`).join(" ")}</div>`
     : data.ayahs.map(a => {
       let jh = ""; if (a.juz !== juzSeen) { juzSeen = a.juz; jh = `<div class="juzh">— ${t("juzN")} ${num(a.juz)} —</div>`; }
-      return `${jh}<div class="ayah" id="a${a.n}" data-a="${a.n}"><div class="bar"><span class="ref">${num(n)}:${num(a.n)}</span>${a.sajda ? `<span class="sajda">۩ ${t("sajda")}</span>` : ""}<span class="sp"></span>
+      const mk = marks[`${n}:${a.n}`];
+      return `${jh}<div class="ayah ${mk && mk.c ? "hl-" + mk.c : ""}" id="a${a.n}" data-a="${a.n}"><div class="bar"><span class="ref">${num(n)}:${num(a.n)}</span>${a.sajda ? `<span class="sajda">۩ ${t("sajda")}</span>` : ""}<span class="sp"></span>
         <button class="ib" data-act="play" aria-label="${t("listen")}">${ICON.play}</button>
         <button class="ib" data-act="tafsir" aria-label="${t("tafsir")}">${ICON.book}</button>
         <button class="ib ${isMarked(a.n) ? "on" : ""}" data-act="mark" aria-label="${t("bookmark")}">${isMarked(a.n) ? ICON.mark : ICON.markO}</button>
         <button class="ib" data-act="more" aria-label="More">${ICON.more}</button></div>
         <div class="ar">${a.ar}<span class="mark">﴿${arNum(a.n)}﴾</span></div>
-        ${S.tr ? `<div class="tr">${esc(a.tr)}</div>` : ""}${S.en ? `<div class="en">${esc(a.en)}</div>` : ""}</div>`;
+        ${S.tr ? `<div class="tr">${esc(a.tr)}</div>` : ""}${S.en ? `<div class="en">${esc(a.en)}</div>` : ""}${mk && mk.note ? `<div class="note">✎ ${esc(mk.note)}</div>` : ""}</div>`;
     }).join("");
   app.innerHTML = topbar(`<h1>${esc(sName(info))}</h1>`) + `<div class="wrap">
     <div class="shead"><div class="arn">${info.name}</div><div class="t">${esc(info.en)}${isAr() ? "" : " · " + esc(info.meaning)}</div>
@@ -262,6 +264,8 @@ async function ayahSheet(n, a) {
     <button class="opt" onclick="closeSheet(); player.start(${n}, ${a})"><span class="ico">${ICON.play}</span><span class="l">${t("from")}</span></button>
     <a class="opt" href="#/recite/${n}/${a}"><span class="ico">${ICON.mic}</span><span class="l">${L("Recite from here", "سمّع من هنا")}</span></a>
     <button class="opt" onclick="closeSheet(); toggleMark(${n}, ${a}); route()"><span class="ico">${marked ? ICON.mark : ICON.markO}</span><span class="l">${marked ? t("saved1") : t("bookmark")}</span></button>
+    <button class="opt" onclick="closeSheet(); noorMarkSheet(${n}, ${a})"><span class="ico">✎</span><span class="l">${L("Note and highlight", "ملاحظة وتظليل")}</span></button>
+    <button class="opt" onclick="closeSheet(); noorShareImage(${n}, ${a})"><span class="ico">${ICON.star}</span><span class="l">${L("Share as a picture", "شارك كصورة")}</span></button>
     <button class="opt" id="shCopy"><span class="ico">${ICON.book}</span><span class="l">${t("copy")}</span></button>
     ${navigator.share ? `<button class="opt" id="shShare"><span class="ico">${ICON.more}</span><span class="l">${t("share")}</span></button>` : ""}
     <div class="tfbox"><b>${t("tafsir")}</b>${esc(ay.tf)}</div>`);
@@ -337,7 +341,7 @@ const player = {
   async step(d) {
     const a = this.a + d; if (a < 1) return;
     if (a > this.count) {
-      if (this.s >= 114) return this.stop();
+      if (this.s >= 114 || sleepEnd) { sleepEnd = false; const b = $("#plSleep"); b.dataset.v = 0; b.textContent = "⏾"; b.classList.remove("on"); return this.stop(); }
       this.s++; this.a = 1; this.count = (await surah(this.s)).count; this.left = this.repeat;
       if (location.hash.startsWith("#/s/")) location.hash = `#/s/${this.s}`;
     } else { this.a = a; this.left = this.repeat; }
@@ -358,6 +362,14 @@ $("#plRepeat").onclick = e => { player.repeat = player.repeat === 1 ? 3 : player
   e.target.textContent = player.repeat + "×"; e.target.classList.toggle("on", player.repeat > 1); toast(L("Repeat each ayah ", "تكرار كل آية ") + player.repeat + "×"); };
 $("#plSpeed").onclick = e => { const v = [1, 1.25, 1.5, 0.75]; S.speed = v[(v.indexOf(S.speed) + 1) % v.length]; saveS(); player.audio.playbackRate = S.speed; e.target.textContent = S.speed + "×"; e.target.classList.toggle("on", S.speed !== 1); };
 $("#plSpeed").textContent = S.speed + "×";
+let sleepT = null, sleepEnd = false;
+$("#plSleep").onclick = e => {
+  const b = e.currentTarget, steps = [0, 15, 30, 60, -1], cur = +(b.dataset.v || 0), nx = steps[(steps.indexOf(cur) + 1) % steps.length];
+  b.dataset.v = nx; clearTimeout(sleepT); sleepEnd = nx === -1;
+  b.textContent = nx === 0 ? "⏾" : nx === -1 ? L("end", "نهاية") : nx + "m"; b.classList.toggle("on", nx !== 0);
+  if (nx > 0) sleepT = setTimeout(() => { player.audio.pause(); toast(L("Sleep timer: stopped", "مؤقت النوم: توقف")); }, nx * 60000);
+  toast(nx === 0 ? L("Sleep timer off", "مؤقت النوم متوقف") : nx === -1 ? L("Stops at the end of this surah", "يتوقف في نهاية السورة") : L(`Stops in ${nx} minutes`, `يتوقف بعد ${nx} دقيقة`));
+};
 if ("mediaSession" in navigator) { navigator.mediaSession.setActionHandler("nexttrack", () => player.step(1)); navigator.mediaSession.setActionHandler("previoustrack", () => player.step(-1)); }
 
 /* ---------- sheet, toast, settings ---------- */
@@ -372,7 +384,7 @@ window.openSettings = () => {
   const offline = store.get("offline", false);
   sheet(`<h3>${t("settings")}</h3>
     <div class="opt"><span class="l">${L("Language", "اللغة")}</span>${seg("lang", [["en", "English"], ["ar", "العربية"]])}</div>
-    <div class="opt"><span class="l">${L("Look", "المظهر")}</span>${seg("theme", [["light", L("Light", "فاتح")], ["dark", L("Dark", "داكن")]])}</div>
+    <div class="opt"><span class="l">${L("Look", "المظهر")}</span>${seg("theme", [["light", L("Light", "فاتح")], ["sepia", L("Sepia", "ورقي")], ["dark", L("Dark", "داكن")]])}</div>
     <div class="opt" style="display:block"><div style="display:flex;align-items:center;gap:12px"><span class="l">${L("Quran font", "خط المصحف")}</span>${seg("font", [["scheherazade", L("Clear", "واضح")], ["amiri", L("Classic", "كلاسيكي")], ["naskh", L("Simple", "بسيط")]])}</div>
       <div class="q" style="font-size:${S.ar}px;line-height:1.9;text-align:center;direction:rtl;margin-top:8px" id="arPrev">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
       <div style="display:flex;align-items:center;gap:12px"><span class="l d">${L("Size", "الحجم")}</span><input type="range" min="24" max="54" value="${S.ar}" style="flex:1"

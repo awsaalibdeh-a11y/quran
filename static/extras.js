@@ -134,8 +134,14 @@ async function viewPrayer() {
   }
   const tt = todayTimes(now), n = nextPrayer();
   const M = METHODS[S.method] || METHODS.mwl;
+  const prayed = store.get("prayed-" + today(), {});
+  const weekCount = Array.from({ length: 7 }, (_, i) => Object.values(store.get("prayed-" + dayKey(new Date(Date.now() - i * 864e5)), {})).filter(Boolean).length).reduce((a, b) => a + b, 0);
   app.innerHTML = topbar(`<h1>${t("prayer")}</h1>`, false) + `<div class="wrap"><div id="hero"></div>
-    <div class="card ptimes" style="margin-top:12px;padding:6px 10px"><div class="list">${PRAYERS.map(([k]) => `<div class="row ${n && n.k === k && tt[k] > now ? "now" : ""}"><div class="mid"><div class="t1">${pname(k)}</div></div><div class="tm">${hm(tt[k])}</div></div>`).join("")}</div></div>
+    <div class="card ptimes" style="margin-top:12px;padding:6px 10px"><div class="list">${PRAYERS.map(([k]) => `<div class="row ${n && n.k === k && tt[k] > now ? "now" : ""}"><div class="mid"><div class="t1">${pname(k)}</div></div><div class="tm">${hm(tt[k])}</div>
+      ${k === "sunrise" ? `<span style="width:50px"></span>` : `<button class="pdone ${prayed[k] ? "on" : ""}" onclick="noorPrayed('${k}')" aria-label="${L("Prayed", "صليت")}">${ICON.check}</button>`}</div>`).join("")}</div></div>
+    <div class="sec">${L("Prayers this week", "صلوات هذا الأسبوع")}<a>${num(weekCount)} / ${num(35)}</a></div>
+    <div class="card"><div class="pweek">${Array.from({ length: 7 }, (_, i) => { const d = new Date(Date.now() - (6 - i) * 864e5), P = store.get("prayed-" + dayKey(d), {});
+      const c = ["fajr", "dhuhr", "asr", "maghrib", "isha"].filter(k => P[k]).length; return `<span><i style="height:${8 + c * 10}px;opacity:${c ? 1 : .35}"></i>${num(c)}</span>`; }).join("")}</div></div>
     <div class="sec">${L("Settings", "الإعدادات")}</div>
     <div class="card" style="padding:4px 14px">
       <div class="opt"><span class="l">${L("Method", "طريقة الحساب")}</span><select class="sel" onchange="S.method=this.value; store.set('methodSet', true); saveS(); route()">${Object.entries(METHODS).map(([k, m]) => `<option value="${k}" ${k === S.method ? "selected" : ""}>${isAr() ? m.ar : m.en}</option>`).join("")}</select></div>
@@ -147,6 +153,7 @@ async function viewPrayer() {
     <p class="lead" style="margin-top:12px;font-size:12.5px">${L("Calculated with", "محسوبة بطريقة")} ${isAr() ? M.ar : M.en}. ${L("Times can differ by a few minutes from your local mosque.", "قد تختلف بدقائق عن مسجدك.")}</p></div>`;
   nav("prayer"); heroCard();
 }
+window.noorPrayed = k => { const key = "prayed-" + today(), P = store.get(key, {}); P[k] = !P[k]; store.set(key, P); if (P[k] && navigator.vibrate) navigator.vibrate(30); const y = scrollY; route().then(() => scrollTo(0, y)); };
 window.noorCity = i => { const c = CITIES[i]; S.loc = { lat: c[2], lng: c[3], name: isAr() ? c[1] : c[0] }; if (!store.get("methodSet", false)) S.method = guessMethod(S.loc); saveS(); route(); };
 
 /* ---------- Qibla ---------- */
@@ -227,7 +234,9 @@ function viewMore() {
   app.innerHTML = topbar(`<h1>${t("more")}</h1>`, false) + `<div class="wrap"><div class="tiles" style="margin-top:6px">
     ${tile("#/recite/1/1", ICON.mic, L("Recite", "التسميع"))}${tile("#/hifz", ICON.brain, L("Memorize", "الحفظ"))}${tile("#/ramadan", ICON.moon, L("Ramadan", "رمضان"))}
     ${tile("#/adhkar/morning", ICON.sun, L("Morning adhkar", "أذكار الصباح"))}${tile("#/adhkar/evening", ICON.moon, L("Evening adhkar", "أذكار المساء"))}${tile("#/tasbih", ICON.beads, t("tasbih"))}
-    ${tile("#/qibla", ICON.compass, L("Qibla", "القبلة"))}${tile("#/quran", ICON.mark, t("saved"))}<a class="tile" href="javascript:openSettings()"><span class="ic">${ICON.gear}</span>${t("settings")}</a></div>
+    ${tile("#/qibla", ICON.compass, L("Qibla", "القبلة"))}${tile("#/names", ICON.star, L("99 Names", "الأسماء الحسنى"))}${tile("#/duas", ICON.book, L("Quran duas", "أدعية قرآنية"))}
+    ${tile("#/khatma", ICON.quran, L("Khatma plan", "خطة الختمة"))}${tile("#/notes", ICON.mark, L("My notes", "ملاحظاتي"))}${tile("#/calendar", ICON.moon, L("Hijri calendar", "التقويم الهجري"))}
+    ${tile("#/quiz", ICON.brain, L("Quiz", "مسابقة"))}${tile("#/zakat", ICON.grid, L("Zakat", "الزكاة"))}${tile("#/prayer", ICON.mosque, L("Prayer tracker", "متابعة الصلوات"))}<a class="tile" href="javascript:openSettings()"><span class="ic">${ICON.gear}</span>${t("settings")}</a></div>
     <div class="sec">${L("Works without internet", "يعمل دون إنترنت")}</div>
     <div class="card" style="color:var(--muted);font-size:14.5px;line-height:1.8">${L("Reading, tafsir, prayer times, Qibla, adhkar, tasbih, memorizing, Ramadan mode and your streak all work offline. Save the whole Quran in Settings, and download surahs in Listen to hear them offline. Reciting and full-text search need the internet.",
       "القراءة والتفسير ومواقيت الصلاة والقبلة والأذكار والمسبحة والحفظ ووضع رمضان وسلسلة الأيام تعمل كلها دون إنترنت. احفظ القرآن كاملًا من الإعدادات، وحمّل السور من صفحة الاستماع. التسميع والبحث في الآيات يحتاجان إلى إنترنت.")}</div>
