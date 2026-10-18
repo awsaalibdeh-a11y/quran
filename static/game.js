@@ -241,6 +241,7 @@ function levelDone() {
   G.pause = true; sfx("win");
   const bonus = G.right * 50 + G.stars * 2; G.score += bonus;
   const best = Math.max(store.get("gameBest", 0), G.score); store.set("gameBest", best);
+  store.set("gameLevel", Math.max(store.get("gameLevel", 0), G.level + 1));
   overlay(`<div class="gcard"><div style="font-size:44px">🏁</div><h2>${L("Level", "المرحلة")} ${num(G.level)} ${L("complete!", "اكتملت!")}</h2>
     <p>${L("Questions right", "إجابات صحيحة")}: <b>${num(G.right)} / ${num(G.asked)}</b> · ${L("Stars", "النجوم")}: <b>${num(G.stars)}</b><br>${L("Score", "النقاط")}: <b>${num(G.score)}</b> · ${L("Best", "الأفضل")}: ${num(best)}</p>
     <button class="btn wide" id="gNext">${L("Next level", "المرحلة التالية")}</button></div>`);

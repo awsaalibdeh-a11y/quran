@@ -245,6 +245,8 @@ window.noorDl = async n => {
 /* ---------- more ---------- */
 function viewMore() {
   app.innerHTML = topbar(`<h1>${t("more")}</h1>`, false) + `<div class="wrap"><div class="tiles" style="margin-top:6px">
+    <a class="tile" href="#/stats"><span class="ic" style="font-size:22px">🏅</span>${L("My progress", "تقدمي")}</a>
+    <a class="tile" href="#/page"><span class="ic">${ICON.quran}</span>${L("Mushaf pages", "صفحات المصحف")}</a>
     <a class="tile" href="#/account"><span class="ic" style="font-size:22px">👪</span>${L("Family account", "حساب العائلة")}</a>
     <a class="tile" href="#/sheikh"><span class="ic" style="font-family:'Noto Naskh Arabic';font-size:22px;font-weight:700">ش</span>${L("Sheikh Aws", "الشيخ أوس")}</a>
     ${tile("#/recite/1/1", ICON.mic, L("Recite", "التسميع"))}${tile("#/hifz", ICON.brain, L("Memorize", "الحفظ"))}${tile("#/ramadan", ICON.moon, L("Ramadan", "رمضان"))}

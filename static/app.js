@@ -193,6 +193,8 @@ async function viewQuran() {
   app.innerHTML = topbar(`<h1>${t("quran")}</h1>`, false) + `<div class="wrap">
     <form class="search" onsubmit="event.preventDefault(); const q=this.q.value.trim(); if(q) location.hash='#/search?q='+encodeURIComponent(q)">${ICON.search}
       <input name="q" placeholder="${t("search")}" autocomplete="off" enterkeyhint="search"></form>
+    <a class="card cont" href="#/page/${store.get("lastPage", 1)}" style="margin-top:12px"><span class="tile" style="padding:0;border:0;box-shadow:none"><span class="ic">${ICON.quran}</span></span><div class="t"><div class="n" style="font-size:16px">${L("Mushaf by page", "المصحف بالصفحات")}</div>
+      <div class="s">${L("Page", "صفحة")} ${num(store.get("lastPage", 1))} ${L("of", "من")} ${num(604)} · ${L("swipe to turn", "اسحب للتقليب")}</div></div></a>
     <div class="tabs">${["surahs", "juz", "saved"].map(k => `<button class="${tab === k ? "on" : ""}" onclick="store.set('tab','${k}'); route()">${t(k)}</button>`).join("")}</div>
     <div class="card listcard"><div class="list" id="list"></div></div></div>`;
   nav("quran");
@@ -225,24 +227,29 @@ async function viewSurah(n, focus) {
   const isMarked = a => bookmarks.some(b => b.s === n && b.a === a);
   let juzSeen = data.ayahs[0].juz;
   const marks = window.noorMarks ? noorMarks() : {};
+  const [tj, tl] = await Promise.all([window.noorTajweed ? noorTajweed(n) : null, window.noorTr ? noorTr(n) : null]);
+  const arText = a => tj && tj[a.n - 1] ? tj[a.n - 1] : a.ar;
   const body = S.mushaf
-    ? `<div class="mushaf">${data.ayahs.map(a => `<span class="w" id="a${a.n}" data-a="${a.n}">${a.ar}<span class="mark">﴿${arNum(a.n)}﴾</span></span>`).join(" ")}</div>`
+    ? `<div class="mushaf">${data.ayahs.map(a => `<span class="w" id="a${a.n}" data-a="${a.n}">${arText(a)}<span class="mark">﴿${arNum(a.n)}﴾</span></span>`).join(" ")}</div>`
     : data.ayahs.map(a => {
       let jh = ""; if (a.juz !== juzSeen) { juzSeen = a.juz; jh = `<div class="juzh">— ${t("juzN")} ${num(a.juz)} —</div>`; }
       const mk = marks[`${n}:${a.n}`];
       return `${jh}<div class="ayah ${mk && mk.c ? "hl-" + mk.c : ""}" id="a${a.n}" data-a="${a.n}"><div class="bar"><span class="ref">${num(n)}:${num(a.n)}</span>${a.sajda ? `<span class="sajda">۩ ${t("sajda")}</span>` : ""}<span class="sp"></span>
         <button class="ib" data-act="play" aria-label="${t("listen")}">${ICON.play}</button>
         <button class="ib" data-act="tafsir" aria-label="${t("tafsir")}">${ICON.book}</button>
+        <button class="ib" data-act="wbw" aria-label="${L("Word by word", "كلمة كلمة")}" style="font-weight:800;font-size:13px">${L("Aa", "كلمة")}</button>
         <button class="ib ${isMarked(a.n) ? "on" : ""}" data-act="mark" aria-label="${t("bookmark")}">${isMarked(a.n) ? ICON.mark : ICON.markO}</button>
         <button class="ib" data-act="more" aria-label="More">${ICON.more}</button></div>
-        <div class="ar">${a.ar}<span class="mark">﴿${arNum(a.n)}﴾</span></div>
-        ${S.tr ? `<div class="tr">${esc(a.tr)}</div>` : ""}${S.en ? `<div class="en">${esc(a.en)}</div>` : ""}${mk && mk.note ? `<div class="note">✎ ${esc(mk.note)}</div>` : ""}</div>`;
+        <div class="ar">${arText(a)}<span class="mark">﴿${arNum(a.n)}﴾</span></div>
+        ${S.tr ? `<div class="tr">${esc(a.tr)}</div>` : ""}${S.en ? `<div class="en">${esc(a.en)}</div>` : ""}${tl && tl[a.n - 1] ? `<div class="en tl" dir="${noorTrDir()}">${esc(tl[a.n - 1])}</div>` : ""}${mk && mk.note ? `<div class="note">✎ ${esc(mk.note)}</div>` : ""}</div>`;
     }).join("");
   app.innerHTML = topbar(`<h1>${esc(sName(info))}</h1>`) + `<div class="wrap">
     <div class="shead"><div class="arn">${info.name}</div><div class="t">${esc(info.en)}${isAr() ? "" : " · " + esc(info.meaning)}</div>
       <div class="s">${t(info.type === "Meccan" ? "meccan" : "medinan")} · ${num(info.count)} ${t("ayahs")} · ${t("juzN")} ${num(info.juz)} · ${t("page")} ${num(info.page)}</div>
       <div class="acts"><button class="btn" onclick="player.start(${n}, 1)">${ICON.play}${t("playSurah")}</button>
         <a class="btn soft" href="#/recite/${n}/1">${ICON.mic}${L("Recite", "سمّع")}</a>
+        <button class="btn soft" onclick="noorLoop(${n})">🔁 ${L("Loop", "تكرار")}</button>
+        ${S.tajweed ? `<button class="btn ghost" onclick="noorTajweedKey()">🎨 ${L("Colours", "الألوان")}</button>` : ""}
         <button class="btn ghost" onclick="S.mushaf=!S.mushaf; saveS(); route()">${S.mushaf ? L("Ayah by ayah", "آية آية") : L("Mushaf", "مصحف")}</button></div></div>
     ${n !== 1 && n !== 9 ? `<div class="basmala">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>` : ""}
     <div id="ayahs">${body}</div>
@@ -254,6 +261,7 @@ async function viewSurah(n, focus) {
     if (S.mushaf || act === "more") return ayahSheet(n, a);
     if (act === "play") player.start(n, a);
     else if (act === "tafsir") toggleTafsir(el, data.ayahs[a - 1]);
+    else if (act === "wbw") noorWbw(n, a, el);
     else if (act === "mark") { toggleMark(n, a); const b = e.target.closest("[data-act]"); const on = isMarked(a); b.classList.toggle("on", on); b.innerHTML = on ? ICON.mark : ICON.markO; }
   };
   if (observer) observer.disconnect();
@@ -355,6 +363,12 @@ const player = {
   },
   toggle() { if (this.audio.paused) this.audio.play().catch(() => { }); else this.audio.pause(); },
   async step(d) {
+    const lp = this.loop;
+    if (lp && lp.s === this.s && d > 0 && this.a >= lp.b) {
+      lp.done++;
+      if (lp.done < lp.times) { this.a = lp.a; this.left = this.repeat; await this.load(); this.audio.play().catch(() => { }); toast(L(`Round ${lp.done + 1} of ${lp.times}`, `المرة ${lp.done + 1} من ${lp.times}`)); return; }
+      this.loop = null; this.repeat = 1; toast(L("Loop finished. May Allah make it stay with you.", "انتهى التكرار. ثبّته الله في قلبك.")); return this.stop();
+    }
     const a = this.a + d; if (a < 1) return;
     if (a > this.count) {
       if (this.s >= 114 || sleepEnd) { sleepEnd = false; const b = $("#plSleep"); b.dataset.v = 0; b.textContent = "⏾"; b.classList.remove("on"); return this.stop(); }
@@ -363,7 +377,7 @@ const player = {
     } else { this.a = a; this.left = this.repeat; }
     await this.load(); this.audio.play().catch(() => { });
   },
-  stop() { this.audio.pause(); this.playing = false; $("#player").hidden = true; document.body.classList.remove("playing"); this.s = 0; this.paint(); },
+  stop() { this.loop = null; this.audio.pause(); this.playing = false; $("#player").hidden = true; document.body.classList.remove("playing"); this.s = 0; this.paint(); },
 };
 player.audio.addEventListener("play", () => { player.playing = true; $("#plIcon").innerHTML = '<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>'; player.paint(true); });
 player.audio.addEventListener("pause", () => { player.playing = false; $("#plIcon").innerHTML = '<path d="M8 5v14l11-7z"/>'; });
@@ -407,6 +421,8 @@ window.openSettings = () => {
         oninput="S.ar=+this.value; saveS(); applyLook(); $('#arPrev').style.fontSize=this.value+'px'" onchange="route()"></div></div>
     <div class="opt"><span class="l">${L("English translation", "الترجمة الإنجليزية")}</span>${sw("en")}</div>
     <div class="opt"><span class="l">${L("Transliteration", "النطق باللاتينية")}</span>${sw("tr")}</div>
+    <div class="opt"><span class="l">${L("Tajweed colours", "ألوان التجويد")}<div class="d">${L("Colours the rules of recitation. Needs the internet once per surah.", "تلوين أحكام التلاوة. يحتاج إلى إنترنت مرة لكل سورة.")}</div></span>${sw("tajweed")}</div>
+    <div class="opt"><span class="l">${L("Another translation", "ترجمة أخرى")}</span><select class="sel" onchange="setS('tl', this.value)">${(window.noorPlus ? noorPlus.LANGS : [["", "—", "—"]]).map(([v, en, ar]) => `<option value="${v}" ${(S.tl || "") === v ? "selected" : ""}>${isAr() ? ar : en}</option>`).join("")}</select></div>
     <div class="opt"><span class="l">${L("Reading mode", "طريقة القراءة")}</span>${seg("mushaf", [[false, L("Ayah by ayah", "آية آية")], [true, L("Mushaf", "مصحف")]])}</div>
     <div class="opt"><span class="l">${L("Reciter", "القارئ")}</span><select class="sel" onchange="setS('reciter', this.value)">${RECITERS.map(r => `<option value="${r.id}" ${r.id === S.reciter ? "selected" : ""}>${isAr() ? r.ar : r.en}</option>`).join("")}</select></div>
     <div class="opt" style="display:block"><div style="display:flex;align-items:center;gap:12px"><span class="l"><div>${L("Save the text for offline", "حفظ النص دون إنترنت")}</div>
@@ -419,7 +435,7 @@ window.setS = (k, v) => { S[k] = v; saveS(); applyLook(); openSettings(); route(
 
 async function saveOffline() {
   const btn = $("#offBtn"), bar = $("#offP"); btn.disabled = true; bar.hidden = false;
-  const files = ["/static/q/index.json?v=1", ...Array.from({ length: 114 }, (_, i) => `/static/q/${i + 1}.json?v=1`)];
+  const files = ["/static/q/index.json?v=1", "/static/q/pages.json?v=1", ...Array.from({ length: 114 }, (_, i) => `/static/q/${i + 1}.json?v=1`)];
   let done = 0;
   try {
     const c = await caches.open("noor-data-v1");

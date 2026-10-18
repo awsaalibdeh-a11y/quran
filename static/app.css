@@ -374,3 +374,21 @@ h2.big { font-size: 26px; margin: 10px 2px 0; letter-spacing: -.3px; }
   border-radius: 22px; padding: 8px 8px 8px 14px; box-shadow: 0 6px 24px rgba(10, 40, 25, .12); margin-top: 16px; }
 .askbar textarea { flex: 1; border: 0; outline: 0; resize: none; background: none; font: inherit; color: var(--ink); padding: 8px 0; max-height: 140px; }
 .sdisc { text-align: center; color: var(--quiet); font-size: 12px; margin: 8px 0 0; }
+
+/* 2.5 */
+.ayah .tl { border-top: 1px dashed var(--line); padding-top: 8px; }
+.ayah .tl[dir="rtl"] { text-align: right; font-family: "Noto Naskh Arabic", serif; font-size: 18px; }
+.wbw { display: flex; flex-wrap: wrap; flex-direction: row-reverse; gap: 6px; margin-top: 12px; }
+.wd { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 8px 10px; border-radius: 14px; background: var(--card2); border: 1.5px solid transparent; min-width: 64px; }
+.wd.on { border-color: var(--green); background: var(--hl); }
+.wd .a { font-size: 24px; line-height: 1.6; } .wd .t { font-size: 11.5px; color: var(--green); font-style: italic; } .wd .m { font-size: 12px; color: var(--muted); text-align: center; max-width: 120px; }
+.pgbar { display: flex; justify-content: space-between; color: var(--green); font-weight: 700; font-size: 13px; margin: 6px 4px 8px; }
+.pghead { text-align: center; font-size: 30px; margin: 14px 0 2px; padding: 6px; border-radius: 16px; background: var(--gold-soft); color: var(--green); }
+.mushaf.pg { margin-bottom: 8px; }
+.bars { display: flex; align-items: flex-end; gap: 3px; height: 110px; }
+.bars span { flex: 1; height: 100%; display: flex; align-items: flex-end; }
+.bars span i { display: block; width: 100%; background: var(--green); border-radius: 4px 4px 2px 2px; }
+.badges { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.bdg { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px 6px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; font-size: 12px; font-weight: 600; color: var(--quiet); }
+.bdg.on { color: var(--ink); border-color: var(--green); background: var(--hl); }
+.bdg .i { font-size: 28px; }

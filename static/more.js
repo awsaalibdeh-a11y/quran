@@ -89,8 +89,8 @@ async function viewNotes() {
 let PAGES = null;                                                            // page -> first [surah, ayah]
 async function pages() {
   if (PAGES) return PAGES;
-  const idx = await index(); PAGES = {};
-  for (const s of idx.surahs) for (const a of (await surah(s.n)).ayahs) if (!PAGES[a.page]) PAGES[a.page] = [s.n, a.n];
+  const list = await (await fetch("/static/q/pages.json?v=1")).json(); PAGES = {};
+  list.forEach((rows, i) => { PAGES[i + 1] = [rows[0][0], rows[0][1]]; });
   return PAGES;
 }
 async function viewKhatma() {

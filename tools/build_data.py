@@ -42,6 +42,17 @@ def main():
         juz.append({"s": s["surah"], "a": s["ayah"]})
     with open(os.path.join(OUT, "index.json"), "w", encoding="utf-8") as fh:
         json.dump({"surahs": index, "juz": juz}, fh, ensure_ascii=False, separators=(",", ":"))
+    pages = {}
+    for info in index:
+        with open(os.path.join(OUT, f"{info['n']}.json"), encoding="utf-8") as fh:
+            for a in json.load(fh)["ayahs"]:
+                p = pages.setdefault(a["page"], [])
+                if p and p[-1][0] == info["n"]:
+                    p[-1][2] = a["n"]
+                else:
+                    p.append([info["n"], a["n"], a["n"]])
+    with open(os.path.join(OUT, "pages.json"), "w", encoding="utf-8") as fh:
+        json.dump([pages[i] for i in range(1, 605)], fh, separators=(",", ":"))
     print(len(index), "surahs,", sum(i["count"] for i in index), "ayahs")
 
 
