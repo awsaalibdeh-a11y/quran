@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Noor</title>
 <meta name="description" content="Read and listen to the Quran: Arabic, English translation, tafsir, recitations, bookmarks, works offline.">
-<meta name="theme-color" content="#f6f8f6">
+<meta name="theme-color" content="#f4f7f5">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/static/icon-192.png">
 <link rel="apple-touch-icon" href="/static/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Noto+Naskh+Arabic:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Scheherazade+New:wght@400;600&family=Noto+Naskh+Arabic:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/app.css?v={{ version }}">
 </head>
 <body>
@@ -32,6 +32,7 @@
 <div id="toast" class="toast" hidden></div>
 <script>window.NOOR = { version: "{{ version }}", apk: {{ 'true' if apk else 'false' }} };</script>
 <script src="/static/app.js?v={{ version }}"></script>
+<script src="/static/extras.js?v={{ version }}"></script>
 <script src="/static/recite.js?v={{ version }}"></script>
 </body>
 </html>

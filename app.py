@@ -12,7 +12,7 @@ from flask import Flask, jsonify, render_template, request, send_from_directory
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 Q = os.path.join(ROOT, "static", "q")
-VERSION = "1.0"
+VERSION = "2.0"
 
 app = Flask(__name__)
 app.config["JSON_AS_ASCII"] = False
@@ -130,6 +130,27 @@ def transcribe():
     if r.status_code != 200:
         return jsonify(error="The listener had a problem."), 502
     return jsonify(text=r.json().get("text", ""))
+
+
+RECITER_KBPS = {"ar.mahermuaiqly": 128, "ar.alafasy": 128, "ar.abdulbasitmurattal": 64, "ar.husary": 128, "ar.minshawi": 128,
+                "ar.abdurrahmaansudais": 64, "ar.saoodshuraym": 64, "ar.hudhaify": 128, "ar.muhammadayyoub": 128}
+
+
+@app.get("/audio/<reciter>/<int:g>.mp3")
+def audio(reciter, g):
+    """The same recitation files as the CDN, from this site, so the app can save them for listening offline
+    (the CDN does not allow pages to save its files)."""
+    if reciter not in RECITER_KBPS or not 1 <= g <= 6236:
+        return "", 404
+    try:
+        r = requests.get(f"https://cdn.islamic.network/quran/audio/{RECITER_KBPS[reciter]}/{reciter}/{g}.mp3", timeout=20)
+    except requests.RequestException:
+        return "", 502
+    if r.status_code != 200:
+        return "", 502
+    resp = app.response_class(r.content, mimetype="audio/mpeg")
+    resp.headers["Cache-Control"] = "public, max-age=604800"
+    return resp
 
 
 @app.get("/sw.js")

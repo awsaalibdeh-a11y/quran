@@ -44,6 +44,7 @@ window.viewRecite = async (s, a) => {
   const best = store.get("reciteBest", {});
   const opt = (sel, max) => Array.from({ length: max }, (_, i) => `<option value="${i + 1}" ${i + 1 === sel ? "selected" : ""}>${num(i + 1)}</option>`).join("");
   const ar = S.lang === "ar";
+  nav("more");
   app.innerHTML = topbar(`<h1>${ar ? "التسميع" : "Recite"} · ${esc(sName(info))}</h1>`) + `<div class="wrap">
     <div class="hero"><h2>${ar ? "اقرأ، ونور يصحّح لك" : "Recite, and Noor checks you"}</h2>
       <div class="hi" style="margin-top:6px">${ar ? "اقرأ بصوت واضح. نور يتابع كلمة كلمة ويخبرك بالأخطاء، ويعطيك تقييمًا في النهاية." : "Read aloud clearly. Noor follows you word by word, marks mistakes, and scores you at the end."}</div></div>
@@ -181,7 +182,8 @@ function stopListening() {
 function micDenied() { if (!R.words.length) return; sheet(`<h3>${S.lang === "ar" ? "الميكروفون مغلق" : "The microphone is off"}</h3><p style="color:var(--muted)">${S.lang === "ar" ? "اسمح لنور باستخدام الميكروفون من إعدادات المتصفح أو الهاتف، ثم حاول مرة أخرى." : "Allow Noor to use the microphone in your browser or phone settings, then try again."}</p>`); }
 function noEngine() { sheet(`<h3>${S.lang === "ar" ? "التسميع غير متاح هنا بعد" : "Reciting isn't available here yet"}</h3><p style="color:var(--muted)">${S.lang === "ar" ? "افتح نور في متصفح Chrome أو Edge ليعمل التسميع." : "Open Noor in Chrome or Edge to recite."}</p>`); }
 window.addEventListener("hashchange", () => { if (R.running) stopListening(); });
-window.noorRecite = { R, onWords };                                     // for tests
+window.noorRecite = { R, onWords };
+VIEWS.push([/^\/recite\/(\d+)(?:\/(\d+))?/, m => viewRecite(+m[1], +(m[2] || 1))]);                                     // for tests
 
 /* ---------- the score ---------- */
 function finish() {

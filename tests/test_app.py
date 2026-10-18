@@ -55,5 +55,18 @@ class Pages(unittest.TestCase):
         self.assertEqual(c.get("/static/q/114.json").status_code, 200)
 
 
+class Audio(unittest.TestCase):
+    def test_only_known_reciters_and_ayahs(self):
+        c = server.app.test_client()
+        self.assertEqual(c.get("/audio/evil/1.mp3").status_code, 404)
+        self.assertEqual(c.get("/audio/ar.mahermuaiqly/9999.mp3").status_code, 404)
+
+    def test_new_pages_ship(self):
+        c = server.app.test_client()
+        for f in ("app.js", "extras.js", "recite.js", "app.css"):
+            self.assertEqual(c.get("/static/" + f).status_code, 200)
+        self.assertIn(b"extras.js", c.get("/").data)
+
+
 if __name__ == "__main__":
     unittest.main()
