@@ -20,7 +20,7 @@ const store = {
   get(k, d) { try { const v = localStorage.getItem("noor." + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
   set(k, v) { try { localStorage.setItem("noor." + k, JSON.stringify(v)); } catch { } },
 };
-const S = Object.assign({ lang: "en", theme: "dark", ar: 30, en: true, tr: false, mushaf: false, reciter: "ar.alafasy", speed: 1 }, store.get("settings", {}));
+const S = Object.assign({ lang: "en", theme: "light", ar: 30, en: true, tr: false, mushaf: false, reciter: "ar.alafasy", speed: 1 }, store.get("settings", {}));
 const saveS = () => store.set("settings", S);
 let bookmarks = store.get("bookmarks", []);          // [{s, a, at}]
 let last = store.get("last", null);                  // {s, a, at}
@@ -71,7 +71,7 @@ function applyLook() {
   document.documentElement.lang = S.lang;
   document.documentElement.dir = S.lang === "ar" ? "rtl" : "ltr";
   document.documentElement.style.setProperty("--ar", S.ar + "px");
-  $('meta[name="theme-color"]').content = S.theme === "light" ? "#f5f5f3" : "#0b0b0c";
+  $('meta[name="theme-color"]').content = S.theme === "dark" ? "#0c1210" : "#f6f8f6";
 }
 
 /* ---------- data ---------- */
@@ -93,6 +93,8 @@ function markRead(s, a) {
   }
   const key = s * 1000 + a;
   if (!p.seen.includes(key)) { p.seen.push(key); p.count++; if (p.seen.length > 800) p.seen = p.seen.slice(-800); }
+  const days = store.get("days", {}); days[d] = p.count; store.set("days", days);
+  if (p.streak > store.get("bestStreak", 0)) store.set("bestStreak", p.streak);
   store.set("progress", p);
 }
 
@@ -117,8 +119,9 @@ async function viewHome() {
     <a class="card cont" href="${lastS ? `#/s/${last.s}/${last.a}` : "#/s/1"}"><div class="t"><div class="k">${lastS ? t("cont") : t("start")}</div>
       <div class="n">${lastS ? esc(sName(lastS)) : t("fatiha")}</div>${lastS ? `<div class="s">${t("playingAyah")} ${num(last.a)} ${t("ofS")} ${num(lastS.count)}</div>` : ""}</div>
       <span class="btn">${S.lang === "ar" ? "اقرأ" : "Read"}</span></a>
-    <div class="streak"><div class="card"><div class="v">${num(streak)}</div><div class="l">${t("streak")}</div></div>
-      <div class="card"><div class="v">${num(p.day === today() ? p.count : 0)}</div><div class="l">${t("readToday")}</div></div></div>
+    ${streakCard(streak, p.day === today() ? p.count : 0)}
+    <a class="card recite-card" href="#/recite/${lastS ? last.s : 1}/${lastS ? last.a : 1}"><div class="ic">🎙</div><div class="t"><b>${S.lang === "ar" ? "سمّع لنفسك" : "Recite and get checked"}</b>
+      <span>${S.lang === "ar" ? "اقرأ بصوتك، ونور يصحّح أخطاءك ويعطيك تقييمًا" : "Read aloud: Noor marks your mistakes and scores you"}</span></div><span class="btn">${S.lang === "ar" ? "ابدأ" : "Start"}</span></a>
     <div id="daily"></div>
     <div class="quick">${[[18, 1, "Al-Kahf", "الكهف"], [36, 1, "Ya-Sin", "يس"], [67, 1, "Al-Mulk", "الملك"], [2, 255, "Ayat al-Kursi", "آية الكرسي"], [55, 1, "Ar-Rahman", "الرحمن"], [56, 1, "Al-Waqi'ah", "الواقعة"], [2, 285, "End of Al-Baqarah", "خواتيم البقرة"]]
       .map(([s, a, en, ar]) => `<a class="pill" href="#/s/${s}/${a}">${S.lang === "ar" ? ar : en}</a>`).join("")}</div>
@@ -140,6 +143,18 @@ async function viewHome() {
         <div class="t2">${t("playingAyah")} ${num(b.a)} · ${new Date(b.at).toLocaleDateString(S.lang)}</div></div><div class="arn">${s.name}</div></a>`; }).join("")
       : `<div class="empty">${t("noSaved")}</div>`;
   }
+}
+function streakCard(streak, todayCount) {
+  const goal = S.goal || 10, days = store.get("days", {}), ar = S.lang === "ar";
+  const names = ar ? ["أحد", "اثن", "ثلا", "أرب", "خمي", "جمع", "سبت"] : ["S", "M", "T", "W", "T", "F", "S"];
+  const week = Array.from({ length: 7 }, (_, i) => { const d = new Date(Date.now() - (6 - i) * 864e5); const k = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    return `<span class="${days[k] ? "on" : ""} ${i === 6 ? "today" : ""}"><i></i>${names[d.getDay()]}</span>`; }).join("");
+  const best = Math.max(store.get("bestStreak", 0), streak);
+  return `<div class="card" style="margin-top:12px"><div class="sk"><span style="font-size:24px">🔥</span><span class="v">${num(streak)}</span><span class="l">${t("streak")}</span>
+    <span class="b">${ar ? "الأفضل" : "Best"}: ${num(best)}</span></div><div class="week">${week}</div>
+    <div class="sk" style="margin-top:12px"><span class="l">${ar ? "هدف اليوم" : "Today's goal"}: ${num(Math.min(todayCount, goal))} / ${num(goal)} ${t("ayahs")}${todayCount >= goal ? " ✓" : ""}</span>
+    <button class="b" style="color:var(--gold)" onclick="S.goal = [5,10,20,50][([5,10,20,50].indexOf(S.goal||10)+1)%4]; saveS(); viewHome()">${ar ? "غيّر الهدف" : "Change goal"}</button></div>
+    <div class="goal"><div style="width:${Math.min(100, todayCount / goal * 100)}%"></div></div></div>`;
 }
 function surahRow(s) {
   return `<a class="row" href="#/s/${s.n}"><div class="num"><span>${num(s.n)}</span></div><div class="mid"><div class="t1">${esc(S.lang === "ar" ? s.name : s.en)}</div>
@@ -180,6 +195,7 @@ async function viewSurah(n, focus) {
     <div class="shead"><div class="arn">${info.name}</div><div class="t">${esc(info.en)}${S.lang === "ar" ? "" : " · " + esc(info.meaning)}</div>
       <div class="s">${t(info.type === "Meccan" ? "meccan" : "medinan")} · ${num(info.count)} ${t("ayahs")} · ${t("juzN")} ${num(info.juz)} · ${t("page")} ${num(info.page)}</div>
       <div class="acts"><button class="btn" onclick="player.start(${n}, 1)">${t("playSurah")}</button>
+        <a class="btn ghost" href="#/recite/${n}/1">🎙 ${S.lang === "ar" ? "سمّع" : "Recite"}</a>
         <button class="btn ghost" onclick="S.mushaf=!S.mushaf; saveS(); route()">${S.mushaf ? t("cards") : t("mushafm")}</button></div></div>
     ${n !== 1 && n !== 9 ? `<div class="basmala">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>` : ""}
     <div id="ayahs">${body}</div>
@@ -215,6 +231,7 @@ async function ayahSheet(n, a) {
   sheet(`<h3>${esc(ref)}</h3><div class="ayah" style="border:0;padding:0 0 10px"><div class="ar">${ay.ar}</div>${S.en ? `<div class="en">${esc(ay.en)}</div>` : ""}</div>
     <button class="opt" onclick="closeSheet(); player.start(${n}, ${a})"><span class="l">${t("from")}</span>${ICON.play}</button>
     <button class="opt" onclick="closeSheet(); toggleMark(${n}, ${a}); route()"><span class="l">${marked ? t("saved1") : t("bookmark")}</span>${marked ? ICON.mark : ICON.markO}</button>
+    <a class="opt" href="#/recite/${n}/${a}"><span class="l">🎙 ${S.lang === "ar" ? "سمّع من هنا" : "Recite from here"}</span></a>
     <button class="opt" id="shCopy"><span class="l">${t("copy")}</span></button>
     ${navigator.share ? `<button class="opt" id="shShare"><span class="l">${t("share")}</span></button>` : ""}
     <div class="ayah" style="border:0;padding:6px 0"><div class="tf"><b>${t("tafsir")}</b>${esc(ay.tf)}</div></div>`);
@@ -346,10 +363,12 @@ async function route() {
     if (m) await viewSurah(+m[1], +(m[2] || 1));
     else if (h.startsWith("/search")) await viewSearch(decodeURIComponent((h.split("q=")[1] || "").replace(/\+/g, " ")));
     else if (h.startsWith("/tasbih")) viewTasbih();
+    else if (h.match(/^\/recite\/(\d+)/)) { const r = h.match(/^\/recite\/(\d+)(?:\/(\d+))?/); await viewRecite(+r[1], +(r[2] || 1)); }
     else { await viewHome(); }
   } catch (e) { app.innerHTML = topbar("<h1>Noor</h1>") + `<div class="wrap"><div class="empty">${S.lang === "ar" ? "تعذّر التحميل. تحقق من الإنترنت، أو احفظ القرآن للاستخدام دون إنترنت من الإعدادات." : "Could not load. Check the internet, or save the Quran for offline use in Settings."}</div></div>`; }
 }
 window.addEventListener("hashchange", () => { hops = location.hash.length > 2 ? hops + 1 : 0; closeSheet(); route(); });
+window.index = index; window.surah = surah; window.sName = sName; window.topbar = topbar; window.esc = esc; window.num = num; window.arNum = arNum; window.toast = toast; window.sheet = sheet; window.markRead = markRead; window.app = app;
 window.store = store; window.player = player; window.S = S; window.saveS = saveS; window.route = route; window.applyLook = applyLook; window.toggleMark = toggleMark; window.viewHome = viewHome; window.$ = $;
 applyLook(); route();
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => { });

@@ -3,6 +3,10 @@ so reading works offline once the app has saved them. Recitations stream from th
 import json
 import os
 import re
+import time
+from collections import defaultdict, deque
+
+import requests
 
 from flask import Flask, jsonify, render_template, request, send_from_directory
 
@@ -12,6 +16,25 @@ VERSION = "1.0"
 
 app = Flask(__name__)
 app.config["JSON_AS_ASCII"] = False
+app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024
+
+
+def read_env():
+    """A local .env (never committed) for running on this PC; on Render the same names are set in its Environment page."""
+    path = os.path.join(ROOT, ".env")
+    if os.path.exists(path):
+        for line in open(path, encoding="utf-8"):
+            if "=" in line and not line.lstrip().startswith("#"):
+                k, v = line.strip().split("=", 1)
+                os.environ.setdefault(k.strip(), v.strip().strip('"'))
+
+
+read_env()
+OPENAI_KEY = os.environ.get("OPENAI_API_KEY", "")
+TRANSCRIBE_MODEL = os.environ.get("OPENAI_TRANSCRIBE_MODEL", "gpt-4o-transcribe")
+DAILY_LIMIT = int(os.environ.get("TRANSCRIBE_DAILY_LIMIT", "3000"))
+_hits = defaultdict(deque)
+_day = {"d": "", "n": 0}
 
 MARKS = re.compile("[ؐ-ًؚ-ٰٟۖ-ۭـ]")   # harakat, small letters, Quranic marks, tatweel
 FOLD = str.maketrans({"ٱ": "ا", "أ": "ا", "إ": "ا", "آ": "ا", "ى": "ي", "ة": "ه", "ؤ": "و", "ئ": "ي"})
@@ -71,6 +94,42 @@ def home():
 def api_search():
     results, total = search(request.args.get("q", "")[:80])
     return jsonify(results=results, total=total)
+
+
+@app.post("/api/transcribe")
+def transcribe():
+    """Speech to text for reciting where the browser has no speech recognition of its own (the Android app).
+    The audio goes to the model and is not kept."""
+    if not OPENAI_KEY:
+        return jsonify(error="Reciting in the app is not set up yet."), 503
+    ip = request.headers.get("X-Forwarded-For", request.remote_addr or "").split(",")[0].strip()
+    now = time.time()
+    q = _hits[ip]
+    while q and q[0] < now - 60:
+        q.popleft()
+    if len(q) >= 30:                                                     # about one request every 2 seconds per person
+        return jsonify(error="Slow down a little."), 429
+    today = time.strftime("%Y-%m-%d")
+    if _day["d"] != today:
+        _day.update(d=today, n=0)
+    if _day["n"] >= DAILY_LIMIT:
+        return jsonify(error="Reciting is resting for today. Try again tomorrow."), 429
+    f = request.files.get("audio")
+    if not f:
+        return jsonify(error="No audio."), 400
+    q.append(now)
+    _day["n"] += 1
+    hint = request.form.get("hint", "")[:600]
+    try:
+        r = requests.post("https://api.openai.com/v1/audio/transcriptions", headers={"Authorization": f"Bearer {OPENAI_KEY}"},
+                          data={"model": TRANSCRIBE_MODEL, "language": "ar", "response_format": "json",
+                                "prompt": "Quran recitation in Arabic. The reader is reciting: " + hint},
+                          files={"file": (f.filename or "a.webm", f.read(), f.mimetype or "audio/webm")}, timeout=25)
+    except requests.RequestException:
+        return jsonify(error="Could not reach the listener."), 502
+    if r.status_code != 200:
+        return jsonify(error="The listener had a problem."), 502
+    return jsonify(text=r.json().get("text", ""))
 
 
 @app.get("/sw.js")
