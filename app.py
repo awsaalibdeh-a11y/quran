@@ -87,7 +87,7 @@ def search(q, limit=60):
 
 @app.get("/")
 def home():
-    return render_template("index.html", version=VERSION, apk=os.path.exists(os.path.join(ROOT, "static", "noor.apk")))
+    return render_template("index.html", version=VERSION, apk=os.path.exists(os.path.join(ROOT, "static", "noor.apk")) and "AwsaaApp" not in request.headers.get("User-Agent", ""))
 
 
 @app.get("/api/search")
