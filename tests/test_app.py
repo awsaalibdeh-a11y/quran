@@ -63,9 +63,19 @@ class Audio(unittest.TestCase):
 
     def test_new_pages_ship(self):
         c = server.app.test_client()
-        for f in ("app.js", "extras.js", "recite.js", "more.js", "game.js", "app.css"):
+        for f in ("app.js", "extras.js", "recite.js", "more.js", "game.js", "sheikh.js", "app.css"):
             self.assertEqual(c.get("/static/" + f).status_code, 200)
         self.assertIn(b"extras.js", c.get("/").data)
+
+
+class Sheikh(unittest.TestCase):
+    def test_needs_a_question(self):
+        c = server.app.test_client()
+        if not server.OPENAI_KEY:
+            self.assertEqual(c.post("/api/sheikh", json={"messages": [{"role": "user", "content": "hi"}]}).status_code, 503)
+        else:
+            self.assertEqual(c.post("/api/sheikh", json={"messages": []}).status_code, 400)
+            self.assertEqual(c.post("/api/sheikh", json={"messages": [{"role": "assistant", "content": "x"}]}).status_code, 400)
 
 
 if __name__ == "__main__":

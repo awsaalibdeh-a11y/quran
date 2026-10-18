@@ -141,6 +141,8 @@ async function viewHome() {
     <a class="card cont" href="${lastS ? `#/s/${last.s}/${last.a}` : "#/s/1"}"><div class="t"><div class="k">${lastS ? t("cont") : t("start")}</div>
       <div class="n">${esc(lastS ? sName(lastS) : t("fatiha"))}</div>${lastS ? `<div class="s">${t("playingAyah")} ${num(last.a)} ${t("ofS")} ${num(lastS.count)}</div>` : ""}</div>
       <span class="btn">${t("read")}</span></a>
+    <a class="card sheikhcard" href="#/sheikh"><span class="sav big">ش</span><div><b>${L("Ask Sheikh Aws", "اسأل الشيخ أوس")}</b>
+      <span>${L("Your AI helper for Islamic rules, duas and the Quran", "مساعدك الذكي في الأحكام والأدعية والقرآن")}</span></div><span class="btn">${L("Ask", "اسأل")}</span></a>
     <div style="height:10px"></div>${streakCard()}
     <div class="sec">${L("Tools", "أدوات")}</div>
     <div class="tiles">
