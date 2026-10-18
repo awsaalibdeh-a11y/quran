@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Noor</title>
+<meta name="description" content="Read and listen to the Quran: Arabic, English translation, tafsir, recitations, bookmarks, works offline.">
+<meta name="theme-color" content="#0b0b0c">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/static/icon-192.png">
+<link rel="apple-touch-icon" href="/static/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Noto+Naskh+Arabic:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/app.css?v={{ version }}">
+</head>
+<body>
+<div id="app"></div>
+<div id="player" class="player" hidden>
+  <div class="pl-info"><div class="pl-title" id="plTitle"></div><div class="pl-sub" id="plSub"></div></div>
+  <div class="pl-btns">
+    <button class="ib" id="plPrev" aria-label="Previous ayah"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zM9.5 12 18 6v12z"/></svg></button>
+    <button class="ib big" id="plPlay" aria-label="Play"><svg viewBox="0 0 24 24" id="plIcon"><path d="M8 5v14l11-7z"/></svg></button>
+    <button class="ib" id="plNext" aria-label="Next ayah"><svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg></button>
+    <button class="chip" id="plRepeat" aria-label="Repeat">1×</button>
+    <button class="chip" id="plSpeed" aria-label="Speed">1×</button>
+    <button class="ib" id="plClose" aria-label="Stop"><svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg></button>
+  </div>
+  <div class="pl-bar"><div id="plFill"></div></div>
+</div>
+<div id="sheet" class="sheet-wrap" hidden><div class="sheet" id="sheetBody"></div></div>
+<div id="toast" class="toast" hidden></div>
+<script>window.NOOR = { version: "{{ version }}", apk: {{ 'true' if apk else 'false' }} };</script>
+<script src="/static/app.js?v={{ version }}"></script>
+</body>
+</html>
