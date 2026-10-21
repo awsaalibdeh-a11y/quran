@@ -422,3 +422,14 @@ h2.big { font-size: 26px; margin: 10px 2px 0; letter-spacing: -.3px; }
 .nav .pip { width: 46px; }
 .nav a.sk-tab .pip { background: linear-gradient(135deg, #0b5c3b, #17975f); color: #fff; width: 46px; height: 32px; }
 .nav a.sk-tab.on { color: var(--green); }
+
+/* 2.9: every part is a tab; no More page */
+.nav .tabsrow { display: flex; overflow-x: auto; scrollbar-width: none; height: var(--nav); padding: 0 4px; scroll-snap-type: x proximity; }
+.nav .tabsrow::-webkit-scrollbar { display: none; }
+.nav .tabsrow a { flex: 0 0 auto; min-width: 68px; padding: 0 6px; scroll-snap-align: center; }
+@media (min-width: 900px) { .nav .tabsrow { justify-content: center; } }
+.subnav { position: sticky; top: 60px; z-index: 19; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(14px); }
+.subnav .wrap { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 8px; }
+.subnav .wrap::-webkit-scrollbar { display: none; }
+.subnav a { flex: none; padding: 7px 14px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); font-size: 13.5px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.subnav a.on { background: var(--green); border-color: var(--green); color: #fff; }

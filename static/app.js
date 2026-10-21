@@ -124,11 +124,44 @@ function topbar(title, back = true, extra = "") {
 }
 let hops = 0;
 window.goBack = () => { if (hops > 0) history.back(); else location.hash = "#/"; };
+const TABS = [
+  ["home", "/", "Home", "الرئيسية", () => ICON.home, [/^\/$/, /^\/daily/]],
+  ["quran", "/quran", "Quran", "القرآن", () => ICON.quran, [/^\/quran/, /^\/s\//, /^\/search/, /^\/page/, /^\/notes/]],
+  ["sheikh", "/sheikh", "Sheikh Aws", "الشيخ أوس", () => `<span style="font-family:'Noto Naskh Arabic',serif;font-weight:700;font-size:19px;line-height:1">ش</span>`, [/^\/sheikh/]],
+  ["listen", "/listen", "Listen", "استمع", () => ICON.head, [/^\/listen/]],
+  ["prayer", "/prayer", "Prayer", "الصلاة", () => ICON.mosque, [/^\/prayer/, /^\/qibla/, /^\/calendar/, /^\/zakat/]],
+  ["recite", "/recite/1/1", "Recite", "التسميع", () => ICON.mic, [/^\/recite/]],
+  ["hifz", "/hifz", "Memorize", "الحفظ", () => ICON.brain, [/^\/hifz/, /^\/khatma/]],
+  ["adhkar", "/adhkar/morning", "Adhkar", "الأذكار", () => ICON.sun, [/^\/adhkar/, /^\/duas/, /^\/names/, /^\/feel/, /^\/tasbih/]],
+  ["ramadan", "/ramadan", "Ramadan", "رمضان", () => ICON.moon, [/^\/ramadan/]],
+  ["learn", "/letters", "Learn", "تعلّم", () => `<span style="font-family:'Noto Naskh Arabic',serif;font-weight:700;font-size:15px;line-height:1">أب</span>`, [/^\/letters/, /^\/quiz/, /^\/game/]],
+  ["family", "/account", "Family", "العائلة", () => `<span style="font-size:19px;line-height:1">👪</span>`, [/^\/account/]],
+  ["progress", "/stats", "Progress", "تقدمي", () => ICON.star, [/^\/stats/]],
+];
+// the buttons along the top of a tab that holds more than one page
+const SUBS = {
+  quran: [["/quran", "Surahs", "السور"], ["/page", "Mushaf pages", "صفحات المصحف"], ["/notes", "My notes", "ملاحظاتي"], ["/daily", "Ayah of the day", "آية اليوم"]],
+  prayer: [["/prayer", "Times", "المواقيت"], ["/qibla", "Qibla", "القبلة"], ["/calendar", "Hijri calendar", "التقويم"], ["/zakat", "Zakat", "الزكاة"]],
+  hifz: [["/hifz", "Memorize", "الحفظ"], ["/khatma", "Khatma plan", "خطة الختمة"]],
+  adhkar: [["/adhkar/morning", "Morning", "الصباح"], ["/adhkar/evening", "Evening", "المساء"], ["/duas", "Quran duas", "أدعية قرآنية"], ["/names", "99 Names", "الأسماء الحسنى"], ["/feel", "How I feel", "كيف أشعر"], ["/tasbih", "Tasbih", "المسبحة"]],
+  learn: [["/letters", "Letters", "الحروف"], ["/quiz", "Quiz", "مسابقة"], ["/game", "Noor Quest", "رحلة نور"]],
+};
+function tabOf(h) { return (TABS.find(tb => tb[5].some(re => re.test(h))) || TABS[0])[0]; }
+function subnav() {
+  const h = location.hash.slice(1) || "/", g = tabOf(h), list = SUBS[g];
+  const old = $("#subnav"); if (old) old.remove();
+  if (!list) return;
+  const top = app.querySelector(".top"); if (!top) return;
+  const el = document.createElement("div"); el.id = "subnav"; el.className = "subnav";
+  el.innerHTML = `<div class="wrap">${list.map(([to, en, ar]) => `<a href="#${to}" class="${h === to || (to !== "/" && h.startsWith(to)) ? "on" : ""}">${isAr() ? ar : en}</a>`).join("")}</div>`;
+  top.after(el);
+}
 function nav(on) {
   let n = $("#nav"); if (!n) { n = document.createElement("nav"); n.id = "nav"; n.className = "nav"; document.body.appendChild(n); }
-  const sheikh = `<span style="font-family:'Noto Naskh Arabic',serif;font-weight:700;font-size:19px;line-height:1">ش</span>`;
-  const items = [["/", "home", ICON.home], ["/quran", "quran", ICON.quran], ["/sheikh", "sheikh", sheikh], ["/listen", "listen", ICON.head], ["/prayer", "prayer", ICON.mosque], ["/more", "more", ICON.grid]];
-  n.innerHTML = `<div class="wrap">${items.map(([h, k, ic]) => `<a href="#${h}" class="${on === k ? "on" : ""} ${k === "sheikh" ? "sk-tab" : ""}"><span class="pip">${ic}</span>${k === "sheikh" ? L("Sheikh Aws", "الشيخ أوس") : t(k)}</a>`).join("")}</div>`;
+  const cur = tabOf(location.hash.slice(1) || "/");
+  n.innerHTML = `<div class="tabsrow">${TABS.map(([k, to, en, ar, ic]) => `<a href="#${to}" data-tab="${k}" class="${cur === k ? "on" : ""} ${k === "sheikh" ? "sk-tab" : ""}"><span class="pip">${ic()}</span>${isAr() ? ar : en}</a>`).join("")}</div>`;
+  const a = n.querySelector("a.on"); if (a) requestAnimationFrame(() => a.scrollIntoView({ inline: "center", block: "nearest" }));
+  subnav();
 }
 
 /* ---------- home ---------- */
@@ -156,6 +189,9 @@ async function viewHome() {
       ${tile("#/qibla", ICON.compass, L("Qibla", "القبلة"))}
       ${tile("#/ramadan", ICON.moon, L("Ramadan", "رمضان"))}
       ${tile("#/hifz", ICON.brain, L("Memorize", "الحفظ"))}
+      ${tile("#/duas", ICON.book, L("Quran duas", "أدعية قرآنية"))}
+      ${tile("#/game", ICON.play, L("Noor Quest", "رحلة نور"))}
+      ${tile("#/account", ICON.home, L("Family", "العائلة"))}
     </div>
     <a class="card gamecard" href="#/game"><span class="gc-art">🌙</span><div><b>${L("Noor Quest", "رحلة نور")}</b><span>${L("A jump-and-run game with Quran questions", "لعبة قفز وجري مع أسئلة عن القرآن")}</span></div><span class="btn">${L("Play", "العب")}</span></a>
     <div class="sec">${t("daily")}</div><div id="daily"></div>
@@ -463,6 +499,7 @@ async function route() {
     else if (h.startsWith("/search")) await viewSearch(decodeURIComponent((h.split("q=")[1] || "").replace(/\+/g, " ")));
     else if (h.startsWith("/quran")) await viewQuran();
     else if (h.startsWith("/tasbih")) viewTasbih();
+    else if (h.startsWith("/more")) { location.replace("#/"); return; }
     else {
       const v = VIEWS.find(([re]) => re.test(h));
       if (v) await v[1](h.match(v[0])); else await viewHome();
