@@ -12,11 +12,13 @@ from flask import Flask, Response, jsonify, render_template, request, send_from_
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 Q = os.path.join(ROOT, "static", "q")
-VERSION = "2.5"
+VERSION = "2.6"
 HOMEBASE_URL = os.environ.get("HOMEBASE_URL", "https://homebase-family.onrender.com").rstrip("/")
 
 app = Flask(__name__)
 app.config["JSON_AS_ASCII"] = False
+import hubguard  # noqa: E402  (the owner's universal switches, kept in Cramly)
+hubguard.install(app, "noor")
 app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024
 
 

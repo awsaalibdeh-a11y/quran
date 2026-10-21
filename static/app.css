@@ -392,3 +392,7 @@ h2.big { font-size: 26px; margin: 10px 2px 0; letter-spacing: -.3px; }
 .bdg { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px 6px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; font-size: 12px; font-weight: 600; color: var(--quiet); }
 .bdg.on { color: var(--ink); border-color: var(--green); background: var(--hl); }
 .bdg .i { font-size: 28px; }
+
+/* the universal account chip sits above the tab bar */
+.hub-chip { bottom: calc(var(--nav) + 14px + env(safe-area-inset-bottom)) !important; }
+.hub-box { bottom: calc(var(--nav) + 56px + env(safe-area-inset-bottom)) !important; }
