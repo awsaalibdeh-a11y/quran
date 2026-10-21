@@ -433,3 +433,33 @@ h2.big { font-size: 26px; margin: 10px 2px 0; letter-spacing: -.3px; }
 .subnav .wrap::-webkit-scrollbar { display: none; }
 .subnav a { flex: none; padding: 7px 14px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); font-size: 13.5px; font-weight: 600; color: var(--muted); white-space: nowrap; }
 .subnav a.on { background: var(--green); border-color: var(--green); color: #fff; }
+
+/* 3.1: smoother taps and pages */
+html { touch-action: manipulation; }
+button, a, .sw, .tile, .row, .pill, .rec, .opt, .nm, .lt, .wd { transition: transform .12s ease, background-color .15s ease, opacity .15s ease, border-color .15s ease; }
+.btn:active, .tile:active, .pill:active, .rec:active, .ib:active, .nm:active, .lt:active, .wd:active, .chip:active, .pdone:active, .seg button:active { transform: scale(.96); }
+.row:active, a.card:active, .opt:active { background-color: var(--hl); }
+.nav .tabsrow a:active .pip { transform: scale(.9); }
+.nav .pip { transition: background-color .2s ease, transform .12s ease; }
+#app > .wrap { animation: pageIn .22s ease-out; }
+body.same #app > .wrap { animation: none; }
+@keyframes pageIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+body::before { content: ""; position: fixed; left: 0; top: 0; height: 3px; width: 0; background: var(--green); z-index: 100; transition: width .6s ease, opacity .3s; opacity: 0; }
+body.busy::before { width: 70%; opacity: 1; }
+.card { transition: box-shadow .2s ease, transform .12s ease; }
+.sw::after { transition: inset-inline-start .2s cubic-bezier(.3, 1.4, .6, 1); }
+.sheet-wrap { animation: fadeBg .18s ease-out; }
+@keyframes fadeBg { from { background: rgba(5, 20, 12, 0); } }
+.toast { animation: toastIn .2s ease-out; }
+@keyframes toastIn { from { opacity: 0; transform: translate(-50%, 8px); } }
+@media (prefers-reduced-motion: reduce) { #app > .wrap, .toast, .sheet, .sheet-wrap { animation: none; } }
+/* a calmer, cleaner look */
+.top h1 { letter-spacing: -.2px; }
+.sec { margin-top: 26px; }
+.card { border-radius: 22px; }
+.tile { border-radius: 20px; padding: 16px 8px; }
+.tile .ic { border-radius: 16px; }
+.rw.tried { animation: shake .3s; }
+@keyframes shake { 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
+.rw.ok { animation: pop .25s ease-out; }
+@keyframes pop { from { transform: scale(1.12); } }

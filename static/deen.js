@@ -147,3 +147,56 @@ async function viewMosques() {
 VIEWS.push([/^\/hadith(?:\/(\d+))?/, viewHadith], [/^\/playlists/, viewPlaylists], [/^\/sunnah/, viewSunnah], [/^\/mosques/, viewMosques]);
 window.noorDeen = { fastDays, night, PLAYLISTS, HABITS };
 })();
+
+/* ---------- duas for every day (well-known authentic wordings, each with its source) ---------- */
+(() => {
+  const D = [
+    ["morning", "🌅", "Waking up", "عند الاستيقاظ", [["الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ", "Bukhari", "البخاري"]]],
+    ["sleep", "🌙", "Before sleeping", "قبل النوم", [["بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا", "Bukhari", "البخاري"]]],
+    ["food", "🍽", "Eating", "الطعام", [["بِسْمِ اللَّهِ", "Before eating · Abu Dawud, Tirmidhi", "قبل الأكل · أبو داود والترمذي"], ["بِسْمِ اللَّهِ أَوَّلَهُ وَآخِرَهُ", "If you forgot at the start · Abu Dawud, Tirmidhi", "إذا نسي في أوله · أبو داود والترمذي"],
+      ["الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنِي هَذَا وَرَزَقَنِيهِ مِنْ غَيْرِ حَوْلٍ مِنِّي وَلَا قُوَّةٍ", "After eating · Abu Dawud, Tirmidhi", "بعد الأكل · أبو داود والترمذي"]]],
+    ["home", "🏠", "Home", "البيت", [["بِسْمِ اللَّهِ، تَوَكَّلْتُ عَلَى اللَّهِ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ", "Leaving home · Abu Dawud, Tirmidhi", "عند الخروج من البيت · أبو داود والترمذي"],
+      ["بِسْمِ اللَّهِ وَلَجْنَا، وَبِسْمِ اللَّهِ خَرَجْنَا، وَعَلَى رَبِّنَا تَوَكَّلْنَا", "Entering home · Abu Dawud", "عند دخول البيت · أبو داود"]]],
+    ["masjid", "🕌", "The masjid", "المسجد", [["اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ", "Entering · Muslim", "عند الدخول · مسلم"], ["اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْلِكَ", "Leaving · Muslim", "عند الخروج · مسلم"]]],
+    ["wudu", "💧", "Wudu and the adhan", "الوضوء والأذان", [["أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ", "After wudu · Muslim", "بعد الوضوء · مسلم"],
+      ["اللَّهُمَّ رَبَّ هَذِهِ الدَّعْوَةِ التَّامَّةِ، وَالصَّلَاةِ الْقَائِمَةِ، آتِ مُحَمَّدًا الْوَسِيلَةَ وَالْفَضِيلَةَ، وَابْعَثْهُ مَقَامًا مَحْمُودًا الَّذِي وَعَدْتَهُ", "After the adhan · Bukhari", "بعد الأذان · البخاري"]]],
+    ["toilet", "🚪", "The bathroom", "الخلاء", [["اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبُثِ وَالْخَبَائِثِ", "Entering · Bukhari, Muslim", "عند الدخول · البخاري ومسلم"], ["غُفْرَانَكَ", "Leaving · Abu Dawud, Tirmidhi", "عند الخروج · أبو داود والترمذي"]]],
+    ["clothes", "👕", "Getting dressed", "اللباس", [["الْحَمْدُ لِلَّهِ الَّذِي كَسَانِي هَذَا الثَّوْبَ وَرَزَقَنِيهِ مِنْ غَيْرِ حَوْلٍ مِنِّي وَلَا قُوَّةٍ", "Abu Dawud, Tirmidhi", "أبو داود والترمذي"]]],
+    ["travel", "🚗", "Travelling", "السفر", [["q:43:13:14", "When setting off (Az-Zukhruf 43:13-14) · Muslim", "عند الركوب (الزخرف ١٣-١٤) · مسلم"]]],
+    ["worry", "😟", "Worry and distress", "الهم والكرب", [["اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَالْعَجْزِ وَالْكَسَلِ، وَالْبُخْلِ وَالْجُبْنِ، وَضَلَعِ الدَّيْنِ وَغَلَبَةِ الرِّجَالِ", "Bukhari", "البخاري"],
+      ["لَا إِلَهَ إِلَّا اللَّهُ الْعَظِيمُ الْحَلِيمُ، لَا إِلَهَ إِلَّا اللَّهُ رَبُّ الْعَرْشِ الْعَظِيمِ، لَا إِلَهَ إِلَّا اللَّهُ رَبُّ السَّمَاوَاتِ وَرَبُّ الْأَرْضِ وَرَبُّ الْعَرْشِ الْكَرِيمِ", "In distress · Bukhari, Muslim", "عند الكرب · البخاري ومسلم"],
+      ["q:21:87:87", "The dua of Yunus (Al-Anbiya 21:87) · Tirmidhi", "دعوة ذي النون (الأنبياء ٨٧) · الترمذي"]]],
+    ["calamity", "💔", "When something bad happens", "عند المصيبة", [["إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ، اللَّهُمَّ أْجُرْنِي فِي مُصِيبَتِي وَأَخْلِفْ لِي خَيْرًا مِنْهَا", "Muslim", "مسلم"]]],
+    ["good", "😊", "When something good happens", "عند الفرح", [["الْحَمْدُ لِلَّهِ الَّذِي بِنِعْمَتِهِ تَتِمُّ الصَّالِحَاتُ", "Ibn Majah", "ابن ماجه"]]],
+    ["anger", "😠", "When angry", "عند الغضب", [["أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ", "Bukhari, Muslim", "البخاري ومسلم"]]],
+    ["sneeze", "🤧", "Sneezing", "العطاس", [["الْحَمْدُ لِلَّهِ", "The one who sneezes · Bukhari", "العاطس · البخاري"], ["يَرْحَمُكَ اللَّهُ", "Whoever hears him · Bukhari", "من سمعه · البخاري"], ["يَهْدِيكُمُ اللَّهُ وَيُصْلِحُ بَالَكُمْ", "Then he replies · Bukhari", "ثم يرد العاطس · البخاري"]]],
+    ["sick", "🤒", "Visiting the sick", "عيادة المريض", [["لَا بَأْسَ، طَهُورٌ إِنْ شَاءَ اللَّهُ", "Bukhari", "البخاري"]]],
+    ["rain", "🌧", "Rain", "المطر", [["اللَّهُمَّ صَيِّبًا نَافِعًا", "Bukhari", "البخاري"]]],
+    ["guidance", "🧭", "Guidance and a steady heart", "الهداية والثبات", [["اللَّهُمَّ إِنِّي أَسْأَلُكَ الْهُدَى وَالتُّقَى وَالْعَفَافَ وَالْغِنَى", "Muslim", "مسلم"], ["يَا مُقَلِّبَ الْقُلُوبِ ثَبِّتْ قَلْبِي عَلَى دِينِكَ", "Tirmidhi", "الترمذي"]]],
+    ["knowledge", "📚", "Studying and exams", "العلم والامتحانات", [["q:20:114:114", "Taha 20:114", "طه ١١٤"], ["q:20:25:28", "The dua of Musa (Taha 20:25-28)", "دعاء موسى (طه ٢٥-٢٨)"]]],
+    ["parents", "👪", "For parents", "للوالدين", [["q:17:24:24", "Al-Isra 17:24", "الإسراء ٢٤"], ["q:71:28:28", "Nuh 71:28", "نوح ٢٨"]]],
+    ["forgive", "🤲", "Asking forgiveness", "الاستغفار", [["أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ", "Bukhari (the Prophet ﷺ said it more than 70 times a day)", "البخاري (كان النبي ﷺ يقولها أكثر من سبعين مرة في اليوم)"], ["q:7:23:23", "The dua of Adam (Al-A'raf 7:23)", "دعاء آدم (الأعراف ٢٣)"]]],
+  ];
+  async function text(t) {
+    if (!t.startsWith("q:")) return { ar: t, q: false };
+    const [, s, a, b] = t.split(":").map(Number), d = await surah(s);
+    return { ar: d.ayahs.slice(a - 1, b).map(x => x.ar).join(" "), en: d.ayahs.slice(a - 1, b).map(x => x.en).join(" "), q: true, s, a };
+  }
+  async function viewEveryday(m) {
+    const pick = D.find(x => x[0] === (m && m[1])) || null;
+    const chips = `<div class="quick" style="margin-top:4px">${D.map(([k, ic, en, ar]) => `<a class="pill ${pick && pick[0] === k ? "on" : ""}" href="#/everyday/${k}">${ic} ${isAr() ? ar : en}</a>`).join("")}</div>`;
+    const groups = pick ? [pick] : D;
+    let html = "";
+    for (const [k, ic, en, ar, list] of groups) {
+      html += `<div class="sec">${ic} ${isAr() ? ar : en}</div>`;
+      for (const [t, sen, sar] of list) {
+        const x = await text(t);
+        html += `<div class="card dhikr"><div class="ar ${x.q ? "q" : ""}">${x.ar}</div>${x.en && S.en ? `<div style="color:var(--muted);margin-top:6px">${esc(x.en)}</div>` : ""}<div class="src">${esc(isAr() ? sar : sen)}</div>
+          ${x.q ? `<div class="cnt"><button class="btn soft" onclick="player.start(${x.s}, ${x.a})">${ICON.play}${L("Listen", "استمع")}</button></div>` : ""}</div>`;
+      }
+    }
+    app.innerHTML = topbar(`<h1>${L("Duas for every day", "أدعية كل يوم")}</h1>`) + `<div class="wrap">${chips}${html}</div>`;
+    nav("adhkar");
+  }
+  VIEWS.push([/^\/everyday(?:\/(\w+))?/, viewEveryday]);
+})();

@@ -132,7 +132,7 @@ const TABS = [
   ["prayer", "/prayer", "Prayer", "الصلاة", () => ICON.mosque, [/^\/prayer/, /^\/qibla/, /^\/calendar/, /^\/zakat/, /^\/sunnah/, /^\/mosques/]],
   ["recite", "/recite/1/1", "Recite", "التسميع", () => ICON.mic, [/^\/recite/]],
   ["hifz", "/hifz", "Memorize", "الحفظ", () => ICON.brain, [/^\/hifz/, /^\/khatma/]],
-  ["adhkar", "/adhkar/morning", "Adhkar", "الأذكار", () => ICON.sun, [/^\/adhkar/, /^\/duas/, /^\/names/, /^\/feel/, /^\/tasbih/, /^\/hadith/]],
+  ["adhkar", "/adhkar/morning", "Adhkar", "الأذكار", () => ICON.sun, [/^\/adhkar/, /^\/duas/, /^\/names/, /^\/feel/, /^\/tasbih/, /^\/hadith/, /^\/everyday/]],
   ["ramadan", "/ramadan", "Ramadan", "رمضان", () => ICON.moon, [/^\/ramadan/]],
   ["learn", "/letters", "Learn", "تعلّم", () => `<span style="font-family:'Noto Naskh Arabic',serif;font-weight:700;font-size:15px;line-height:1">أب</span>`, [/^\/letters/, /^\/quiz/, /^\/game/]],
   ["family", "/account", "Family", "العائلة", () => `<span style="font-size:19px;line-height:1">👪</span>`, [/^\/account/]],
@@ -144,7 +144,7 @@ const SUBS = {
   prayer: [["/prayer", "Times", "المواقيت"], ["/sunnah", "Sunnah tracker", "السنن"], ["/mosques", "Mosques", "المساجد"], ["/qibla", "Qibla", "القبلة"], ["/calendar", "Hijri calendar", "التقويم"], ["/zakat", "Zakat", "الزكاة"]],
   listen: [["/listen", "Reciters and surahs", "القراء والسور"], ["/playlists", "Playlists", "قوائم الاستماع"]],
   hifz: [["/hifz", "Memorize", "الحفظ"], ["/khatma", "Khatma plan", "خطة الختمة"]],
-  adhkar: [["/adhkar/morning", "Morning", "الصباح"], ["/adhkar/evening", "Evening", "المساء"], ["/duas", "Quran duas", "أدعية قرآنية"], ["/hadith", "40 Hadith", "الأربعون النووية"], ["/names", "99 Names", "الأسماء الحسنى"], ["/feel", "How I feel", "كيف أشعر"], ["/tasbih", "Tasbih", "المسبحة"]],
+  adhkar: [["/adhkar/morning", "Morning", "الصباح"], ["/adhkar/evening", "Evening", "المساء"], ["/everyday", "Daily duas", "أدعية كل يوم"], ["/duas", "Quran duas", "أدعية قرآنية"], ["/hadith", "40 Hadith", "الأربعون النووية"], ["/names", "99 Names", "الأسماء الحسنى"], ["/feel", "How I feel", "كيف أشعر"], ["/tasbih", "Tasbih", "المسبحة"]],
   learn: [["/letters", "Letters", "الحروف"], ["/quiz", "Quiz", "مسابقة"], ["/game", "Noor Quest", "رحلة نور"]],
 };
 function tabOf(h) { return (TABS.find(tb => tb[5].some(re => re.test(h))) || TABS[0])[0]; }
@@ -503,7 +503,17 @@ async function saveOffline() {
 
 /* ---------- router ---------- */
 const VIEWS = [];                                     // other files add [pattern, view] pairs
+let lastHash = null, busyT = null;
 async function route() {
+  const h0 = location.hash.slice(1) || "/", same = h0 === lastHash, y = scrollY;
+  lastHash = h0;
+  clearTimeout(busyT); busyT = setTimeout(() => document.body.classList.add("busy"), 180);    // a thin bar if a page takes a moment
+  document.body.classList.toggle("same", same);
+  try { await route0(); } finally { clearTimeout(busyT); document.body.classList.remove("busy"); }
+  if (same) scrollTo(0, y);                                    // a toggle redraws the page: stay where you were
+  else if (!/^\/s\/\d+\/\d+/.test(h0) && !/^\/page/.test(h0)) scrollTo(0, 0);   // a new page starts at the top
+}
+async function route0() {
   const h = location.hash.slice(1) || "/";
   const m = h.match(/^\/s\/(\d+)(?:\/(\d+))?/);
   try {
