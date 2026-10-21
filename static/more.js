@@ -248,5 +248,5 @@ window.noorShareImage = async (s, a) => {
 };
 
 VIEWS.push([/^\/names/, viewNames], [/^\/duas/, viewDuas], [/^\/notes/, viewNotes], [/^\/khatma/, viewKhatma], [/^\/calendar/, viewCalendar], [/^\/quiz/, viewQuiz], [/^\/zakat/, viewZakat]);
-window.noorMore = { NAMES };
+window.noorMore = { NAMES, DUAS };
 })();

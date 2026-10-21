@@ -217,7 +217,7 @@ VIEWS.push([/^\/feel(?:\/(\w+))?/, viewFeel], [/^\/letters(?:\/(\w+))?/, viewLet
     }
     return out;
   }
-  window.noorAdhanSync = () => { if (native()) { try { AwsaaNative.setAlarms(JSON.stringify(plan(7))); } catch { } } };
+  window.noorAdhanSync = () => { if (native()) { try { AwsaaNative.setAlarms(JSON.stringify(plan(7).concat(window.noorExtraAlarms ? noorExtraAlarms() : []).sort((a, b) => a.at - b.at))); } catch { } } };
   function play(title) {
     try { audio = audio || new Audio("/static/adhan/adhan.mp3"); audio.currentTime = 0; audio.volume = 1; audio.play().catch(() => { }); } catch { }
     try { if ("Notification" in window && Notification.permission === "granted") new Notification("🕌 " + title, { body: isAr() ? "حيّ على الصلاة" : "Come to prayer", icon: "/static/icon-192.png", tag: "adhan" }); } catch { }

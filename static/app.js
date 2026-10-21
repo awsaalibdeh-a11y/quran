@@ -126,8 +126,9 @@ let hops = 0;
 window.goBack = () => { if (hops > 0) history.back(); else location.hash = "#/"; };
 function nav(on) {
   let n = $("#nav"); if (!n) { n = document.createElement("nav"); n.id = "nav"; n.className = "nav"; document.body.appendChild(n); }
-  const items = [["/", "home", ICON.home], ["/quran", "quran", ICON.quran], ["/listen", "listen", ICON.head], ["/prayer", "prayer", ICON.mosque], ["/more", "more", ICON.grid]];
-  n.innerHTML = `<div class="wrap">${items.map(([h, k, ic]) => `<a href="#${h}" class="${on === k ? "on" : ""}"><span class="pip">${ic}</span>${t(k)}</a>`).join("")}</div>`;
+  const sheikh = `<span style="font-family:'Noto Naskh Arabic',serif;font-weight:700;font-size:19px;line-height:1">ش</span>`;
+  const items = [["/", "home", ICON.home], ["/quran", "quran", ICON.quran], ["/sheikh", "sheikh", sheikh], ["/listen", "listen", ICON.head], ["/prayer", "prayer", ICON.mosque], ["/more", "more", ICON.grid]];
+  n.innerHTML = `<div class="wrap">${items.map(([h, k, ic]) => `<a href="#${h}" class="${on === k ? "on" : ""} ${k === "sheikh" ? "sk-tab" : ""}"><span class="pip">${ic}</span>${k === "sheikh" ? L("Sheikh Aws", "الشيخ أوس") : t(k)}</a>`).join("")}</div>`;
 }
 
 /* ---------- home ---------- */
@@ -138,6 +139,7 @@ async function viewHome() {
   const linked = store.get("hb", null);
   app.innerHTML = topbar(`<div class="brand"><img src="/static/icon-192.png" alt="">Noor</div>`, false, `<a class="ib" href="#/account" aria-label="Account" style="font-size:20px">${linked ? esc(linked.me.emoji || "👤") : "👤"}</a>`) + `<div class="wrap">
     <div id="hero"></div>
+    ${window.noorFridayCard ? noorFridayCard() : ""}
     <div id="homeTasks"></div>
     <div class="sec">${t("hi")[h < 12 ? 0 : h < 17 ? 1 : 2]}</div>
     <a class="card cont" href="${lastS ? `#/s/${last.s}/${last.a}` : "#/s/1"}"><div class="t"><div class="k">${lastS ? t("cont") : t("start")}</div>

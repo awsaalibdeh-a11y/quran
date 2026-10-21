@@ -410,3 +410,15 @@ h2.big { font-size: 26px; margin: 10px 2px 0; letter-spacing: -.3px; }
 .vow { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; direction: rtl; }
 .vow > * { display: flex; flex-direction: column; align-items: center; padding: 8px 14px; border-radius: 14px; background: var(--card2); min-width: 64px; }
 .vow .a { font-size: 38px; line-height: 1.5; font-family: "Noto Naskh Arabic", serif; } .vow span:last-child { font-size: 12px; color: var(--muted); }
+
+/* 2.8: Today card, Friday, Sheikh Aws tab */
+.today-row { display: flex; flex-direction: column; gap: 2px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+.today-row .k { color: var(--green); font-size: 12px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; }
+.today-row .t { color: var(--ink); font-size: 15px; } .today-row .q.t { font-size: 22px; line-height: 1.9; direction: rtl; text-align: right; }
+.today-row b.q { font-size: 20px; color: var(--green); font-weight: 400; }
+.friday { border-color: #e7c88f; background: linear-gradient(120deg, #fff7e6, var(--card)); }
+:root[data-theme="dark"] .friday { background: linear-gradient(120deg, #2a2010, var(--card)); border-color: #5a4320; }
+.nav a { font-size: 10.5px; }
+.nav .pip { width: 46px; }
+.nav a.sk-tab .pip { background: linear-gradient(135deg, #0b5c3b, #17975f); color: #fff; width: 46px; height: 32px; }
+.nav a.sk-tab.on { color: var(--green); }

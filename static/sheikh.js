@@ -28,7 +28,7 @@ function bubble(m) {
 }
 function viewSheikh() {
   const msgs = chat();
-  app.innerHTML = topbar(`<h1>${L("Sheikh Aws", "الشيخ أوس")}</h1>`, true, msgs.length ? `<button class="ib" onclick="noorSheikhClear()" aria-label="New chat">${ICON.trash}</button>` : "") + `<div class="wrap">
+  app.innerHTML = topbar(`<h1>${L("Sheikh Aws", "الشيخ أوس")}</h1>`, false, msgs.length ? `<button class="ib" onclick="noorSheikhClear()" aria-label="New chat">${ICON.trash}</button>` : "") + `<div class="wrap">
     <div id="chat">${msgs.length ? msgs.map(bubble).join("") : `<div class="sintro"><div class="sbig">ش</div><h2 class="big">${L("Assalamu alaykum", "السلام عليكم")}</h2>
       <p class="lead">${L("I'm Sheikh Aws, an AI helper. Ask me about prayer, fasting, duas, the Quran and everyday Islamic rules. For serious personal rulings, please ask a qualified scholar too.",
         "أنا الشيخ أوس، مساعد بالذكاء الاصطناعي. اسألني عن الصلاة والصيام والأدعية والقرآن والأحكام اليومية. وفي المسائل الشخصية المهمة، اسأل عالمًا مؤهلًا أيضًا.")}</p>
@@ -37,7 +37,7 @@ function viewSheikh() {
       onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault(); this.form.requestSubmit()}" oninput="this.style.height='auto'; this.style.height=Math.min(140,this.scrollHeight)+'px'"></textarea>
       <button class="btn" aria-label="Send">${L("Ask", "اسأل")}</button></form>
     <p class="sdisc">${L("AI answers can be wrong. Check important matters with a scholar.", "قد يخطئ الذكاء الاصطناعي. تحقّق من المسائل المهمة مع أهل العلم.")}</p></div>`;
-  nav("more");
+  nav("sheikh");
   $("#chat").onclick = refClick;
   setTimeout(() => window.scrollTo(0, document.body.scrollHeight), 30);
 }
