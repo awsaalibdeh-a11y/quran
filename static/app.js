@@ -34,7 +34,7 @@ const store = {
   set(k, v) { try { localStorage.setItem("noor." + k, JSON.stringify(v)); } catch { } },
 };
 const S = Object.assign({ lang: "en", theme: "light", ar: 32, font: "scheherazade", en: true, tr: false, mushaf: false, reciter: "ar.mahermuaiqly",
-  speed: 1, goal: 10, sky: true, ramadan: "auto", method: "mwl", asr: "std", loc: null }, store.get("settings", {}));
+  speed: 1, goal: 10, sky: true, splash: true, ramadan: "auto", method: "mwl", asr: "std", loc: null }, store.get("settings", {}));
 if (!store.get("v2", false)) { S.reciter = "ar.mahermuaiqly"; if (S.ar < 32) S.ar = 32; store.set("v2", true); }        // 2.0: Maher by default, bigger text
 const saveS = () => store.set("settings", S);
 let bookmarks = store.get("bookmarks", []);
@@ -175,30 +175,11 @@ async function viewHome() {
     <div id="hero"></div>
     ${window.noorFridayCard ? noorFridayCard() : ""}
     <div id="homeTasks"></div>
-    <div class="sec">${t("hi")[h < 12 ? 0 : h < 17 ? 1 : 2]}</div>
     <a class="card cont" href="${lastS ? `#/s/${last.s}/${last.a}` : "#/s/1"}"><div class="t"><div class="k">${lastS ? t("cont") : t("start")}</div>
       <div class="n">${esc(lastS ? sName(lastS) : t("fatiha"))}</div>${lastS ? `<div class="s">${t("playingAyah")} ${num(last.a)} ${t("ofS")} ${num(lastS.count)}</div>` : ""}</div>
-      <span class="btn">${t("read")}</span></a>
-    <a class="card sheikhcard" href="#/sheikh"><span class="sav big">ش</span><div><b>${L("Ask Sheikh Aws", "اسأل الشيخ أوس")}</b>
-      <span>${L("Your AI helper for Islamic rules, duas and the Quran", "مساعدك الذكي في الأحكام والأدعية والقرآن")}</span></div><span class="btn">${L("Ask", "اسأل")}</span></a>
-    <div style="height:10px"></div>${streakCard()}
-    <div class="sec">${L("Tools", "أدوات")}</div>
-    <div class="tiles">
-      ${tile("#/recite/" + (lastS ? last.s + "/" + last.a : "1/1"), ICON.mic, L("Recite", "التسميع"))}
-      ${tile("#/adhkar/" + (h < 15 ? "morning" : "evening"), ICON.sun, L("Adhkar", "الأذكار"))}
-      ${tile("#/tasbih", ICON.beads, t("tasbih"))}
-      ${tile("#/qibla", ICON.compass, L("Qibla", "القبلة"))}
-      ${tile("#/ramadan", ICON.moon, L("Ramadan", "رمضان"))}
-      ${tile("#/hifz", ICON.brain, L("Memorize", "الحفظ"))}
-      ${tile("#/duas", ICON.book, L("Quran duas", "أدعية قرآنية"))}
-      ${tile("#/game", ICON.play, L("Noor Quest", "رحلة نور"))}
-      ${tile("#/account", ICON.home, L("Family", "العائلة"))}
-      ${tile("#/hadith", ICON.book, L("40 Hadith", "الأربعون"))}
-      ${tile("#/playlists", ICON.head, L("Playlists", "قوائم الاستماع"))}
-      ${tile("#/sunnah", ICON.check, L("Sunnah tracker", "متابعة السنن"))}
-    </div>
-    <a class="card gamecard" href="#/game"><span class="gc-art">🌙</span><div><b>${L("Noor Quest", "رحلة نور")}</b><span>${L("A jump-and-run game with Quran questions", "لعبة قفز وجري مع أسئلة عن القرآن")}</span></div><span class="btn">${L("Play", "العب")}</span></a>
-    <div class="sec">${t("daily")}</div><div id="daily"></div>
+      <span class="go">${ICON.back}</span></a>
+    ${streakLine()}
+    <div class="sec">${L("Today", "اليوم")}</div><div id="daily"></div>
     <div class="sec">${L("Popular", "سور مختارة")}</div>
     <div class="quick">${[[18, 1, "Al-Kahf", "الكهف"], [36, 1, "Ya-Sin", "يس"], [67, 1, "Al-Mulk", "الملك"], [2, 255, "Ayat al-Kursi", "آية الكرسي"], [55, 1, "Ar-Rahman", "الرحمن"], [56, 1, "Al-Waqi'ah", "الواقعة"], [2, 285, "End of Al-Baqarah", "خواتيم البقرة"]]
       .map(([s, a, en, ar]) => `<a class="pill" href="#/s/${s}/${a}">${isAr() ? ar : en}</a>`).join("")}</div>
@@ -206,6 +187,10 @@ async function viewHome() {
   nav("home"); heroCard(); daily(idx); if (window.noorHomeTasks) noorHomeTasks();
 }
 const tile = (href, ic, label) => `<a class="tile" href="${href}"><span class="ic">${ic}</span>${label}</a>`;
+function streakLine() {
+  const streak = streakNow(), count = todayCount(), goal = S.goal || 10;
+  return `<a class="streakline" href="#/stats"><span>🔥 ${num(streak)} ${t("streak")}</span><span>${num(Math.min(count, goal))}/${num(goal)} ${t("ayahs")}</span><i style="--p:${Math.min(100, count / goal * 100)}%"></i></a>`;
+}
 function streakCard() {
   const streak = streakNow(), count = todayCount(), goal = S.goal || 10, days = store.get("days", {});
   const names = isAr() ? ["أحد", "اثن", "ثلا", "أرب", "خمي", "جمع", "سبت"] : ["S", "M", "T", "W", "T", "F", "S"];
@@ -469,6 +454,7 @@ window.openSettings = () => {
   sheet(`<h3>${t("settings")}</h3>
     <div class="opt"><span class="l">${L("Language", "اللغة")}</span>${seg("lang", [["en", "English"], ["ar", "العربية"]])}</div>
     <div class="opt"><span class="l">${L("Look", "المظهر")}</span>${seg("theme", [["light", L("Light", "فاتح")], ["sepia", L("Sepia", "ورقي")], ["dark", L("Dark", "داكن")], ["auto", L("Auto", "تلقائي")]])}</div>
+    <div class="opt"><span class="l">${L("Opening animation", "حركة البداية")}<div class="d">${L("The mosque door when Noor opens", "باب المسجد عند فتح نور")}</div></span>${sw("splash")}</div>
     <div class="opt"><span class="l">${L("Sun and moon sky", "سماء الشمس والقمر")}<div class="d">${L("On the home card, where the sun or moon really is now", "في بطاقة الرئيسية، حيث الشمس أو القمر الآن")}</div></span>${sw("sky")}</div>
     <div class="opt" style="display:block"><div style="display:flex;align-items:center;gap:12px"><span class="l">${L("Quran font", "خط المصحف")}</span>${seg("font", [["scheherazade", L("Clear", "واضح")], ["amiri", L("Classic", "كلاسيكي")], ["naskh", L("Simple", "بسيط")]])}</div>
       <div class="q" style="font-size:${S.ar}px;line-height:1.9;text-align:center;direction:rtl;margin-top:8px" id="arPrev">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>

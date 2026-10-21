@@ -1,0 +1,68 @@
+<div id="splash" role="presentation" onclick="this.remove()">
+<svg viewBox="0 0 360 640" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <defs>
+    <linearGradient id="spSkyG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#071a2c"/><stop offset=".55" stop-color="#1c5a48"/><stop offset=".8" stop-color="#e7b77d"/><stop offset="1" stop-color="#f3d7a4"/></linearGradient>
+    <linearGradient id="spWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbf3e2"/><stop offset="1" stop-color="#efdcb8"/></linearGradient>
+    <radialGradient id="spWarm" cx=".5" cy=".55" r=".6"><stop offset="0" stop-color="#fff3c4"/><stop offset=".6" stop-color="#ffd27a"/><stop offset="1" stop-color="#ffb84d" stop-opacity="0"/></radialGradient>
+    <radialGradient id="spLampG" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff6cf"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient>
+    <pattern id="spRug" width="40" height="40" patternUnits="userSpaceOnUse"><rect width="40" height="40" fill="#1d6a4c"/><path d="M20 4 L36 20 L20 36 L4 20 Z" fill="none" stroke="#2a8a62" stroke-width="2"/></pattern>
+  </defs>
+
+  <!-- inside: the mihrab, a lamp, the carpet, and the prayer -->
+  <g class="inside">
+    <rect width="360" height="640" fill="url(#spWall)"/>
+    <path d="M110 470 V300 Q110 220 180 196 Q250 220 250 300 V470 Z" fill="#e2c68f"/>
+    <path d="M128 470 V310 Q128 240 180 220 Q232 240 232 310 V470 Z" fill="#14503a"/>
+    <path d="M140 470 V318 Q140 256 180 240 Q220 256 220 318 V470 Z" fill="none" stroke="#d9b56e" stroke-width="3"/>
+    <g class="lamp"><circle cx="180" cy="150" r="46" fill="url(#spLampG)"/><line x1="180" y1="60" x2="180" y2="132" stroke="#a07a35" stroke-width="2"/><path d="M168 132 h24 l-4 22 h-16 z" fill="#d9a441"/></g>
+    <rect y="470" width="360" height="170" fill="url(#spRug)"/>
+    <rect y="466" width="360" height="6" fill="#0f3f2c"/>
+    <g fill="#fbf6ea" stroke="#0b2a1d" stroke-width="1.5" stroke-linejoin="round">
+      <g class="pose p1"><circle cx="180" cy="392" r="10"/><path d="M168 404 Q165 440 162 470 H198 Q195 440 192 404 Z"/><path d="M171 420 H189" stroke="#c9a86a" stroke-width="3"/></g>
+      <g class="pose p2"><circle cx="146" cy="414" r="10"/><path d="M156 408 H194 Q202 408 202 418 V470 H186 V428 H160 Q152 426 156 408 Z"/><path d="M168 428 L172 452" stroke="#c9a86a" stroke-width="4" stroke-linecap="round"/></g>
+      <g class="pose p3"><circle cx="138" cy="460" r="9"/><path d="M146 456 Q170 424 200 440 L208 470 H148 Z"/></g>
+      <g class="pose p4"><circle cx="176" cy="410" r="10"/><path d="M166 422 Q162 446 156 458 L150 470 H206 L198 456 Q190 440 188 422 Z"/></g>
+    </g>
+    <g class="name">
+      <text x="180" y="560" text-anchor="middle" font-family="'Amiri Quran','Noto Naskh Arabic',serif" font-size="64" fill="#fbf3e2">نور</text>
+      <text x="180" y="598" text-anchor="middle" font-family="Inter,sans-serif" font-weight="700" font-size="20" letter-spacing="6" fill="#fbf3e2" opacity=".9">NOOR</text>
+    </g>
+  </g>
+
+  <!-- outside: the mosque at dawn -->
+  <g class="outside">
+    <rect class="sky" width="360" height="640" fill="url(#spSkyG)"/>
+    <g fill="#fff"><circle class="star" cx="40" cy="70" r="1.4"/><circle class="star" cx="110" cy="40" r="1"/><circle class="star" cx="300" cy="110" r="1.2"/><circle class="star" cx="230" cy="60" r="1"/><circle class="star" cx="70" cy="160" r="1"/></g>
+    <path d="M292 64 a22 22 0 1 0 14 40 a18 18 0 1 1 -14 -40z" fill="#fbeec8"/>
+    <!-- minarets -->
+    <g fill="#0d3a28"><rect x="40" y="210" width="22" height="262"/><path d="M36 210 h30 l-15 -46 z"/><rect x="34" y="262" width="34" height="8" rx="2"/>
+      <rect x="298" y="210" width="22" height="262"/><path d="M294 210 h30 l-15 -46 z"/><rect x="292" y="262" width="34" height="8" rx="2"/></g>
+    <!-- dome and hall -->
+    <path d="M110 312 Q110 236 180 226 Q250 236 250 312 Z" fill="#11452f"/>
+    <path d="M180 226 V206" stroke="#e7c27a" stroke-width="3"/><path d="M174 200 a7 7 0 1 0 8 10 a6 6 0 1 1 -8 -10z" fill="#e7c27a"/>
+    <rect x="76" y="310" width="208" height="162" fill="#0f4030"/>
+    <g fill="#1b5c43"><path d="M96 380 v-26 q0 -16 14 -16 q14 0 14 16 v26z"/><path d="M236 380 v-26 q0 -16 14 -16 q14 0 14 16 v26z"/></g>
+    <!-- the doorway: warm light behind two leaves that swing open -->
+    <path d="M148 472 V404 Q148 372 180 366 Q212 372 212 404 V472 Z" fill="#2a1a08"/>
+    <path class="glow" d="M148 472 V404 Q148 372 180 366 Q212 372 212 404 V472 Z" fill="url(#spWarm)"/>
+    <path class="leafL" d="M150 472 V405 Q150 376 179 369 V472 Z" fill="#8a5523" stroke="#5e3612" stroke-width="2"/>
+    <path class="leafR" d="M181 369 Q210 376 210 405 V472 H181 Z" fill="#8a5523" stroke="#5e3612" stroke-width="2"/>
+    <circle cx="174" cy="428" r="2.2" fill="#e7c27a"/><circle cx="186" cy="428" r="2.2" fill="#e7c27a"/>
+    <!-- ground and the path to the door -->
+    <rect y="472" width="360" height="168" fill="#0a2a1d"/>
+    <path d="M150 472 H210 L262 640 H98 Z" fill="#164b33"/>
+    <!-- the person walking to the mosque -->
+    <g class="walker" fill="#05150e">
+      <circle cx="180" cy="436" r="5.5"/>
+      <path d="M173.5 442 Q172 456 171 466 H189 Q188 456 186.5 442 Z"/>
+      <g class="legs"><rect x="174" y="465" width="4" height="7" rx="1.5"/><rect x="182" y="465" width="4" height="7" rx="1.5"/></g>
+    </g>
+  </g>
+</svg>
+<div class="skip">Tap to skip · اضغط للتخطي</div>
+</div>
+<script>(function () {
+  var s = document.getElementById("splash"); if (!s) return;
+  try { var st = JSON.parse(localStorage.getItem("noor.settings") || "{}"); if (st.splash === false || sessionStorage.getItem("noorSplash")) { s.remove(); return; } sessionStorage.setItem("noorSplash", "1"); } catch (e) { }
+  setTimeout(function () { if (s.parentNode) s.remove(); }, 5700);
+})();</script>

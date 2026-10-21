@@ -434,32 +434,57 @@ h2.big { font-size: 26px; margin: 10px 2px 0; letter-spacing: -.3px; }
 .subnav a { flex: none; padding: 7px 14px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); font-size: 13.5px; font-weight: 600; color: var(--muted); white-space: nowrap; }
 .subnav a.on { background: var(--green); border-color: var(--green); color: #fff; }
 
-/* 3.1: smoother taps and pages */
+/* 3.2: modern, minimal, calm. Flat surfaces with hairline borders, one green accent, little motion. */
 html { touch-action: manipulation; }
-button, a, .sw, .tile, .row, .pill, .rec, .opt, .nm, .lt, .wd { transition: transform .12s ease, background-color .15s ease, opacity .15s ease, border-color .15s ease; }
-.btn:active, .tile:active, .pill:active, .rec:active, .ib:active, .nm:active, .lt:active, .wd:active, .chip:active, .pdone:active, .seg button:active { transform: scale(.96); }
-.row:active, a.card:active, .opt:active { background-color: var(--hl); }
-.nav .tabsrow a:active .pip { transform: scale(.9); }
-.nav .pip { transition: background-color .2s ease, transform .12s ease; }
-#app > .wrap { animation: pageIn .22s ease-out; }
+:root { --radius: 16px; --shadow: none; --line: #e6ebe8; --card2: #f1f5f2; --muted: #5d6b64; }
+:root[data-theme="dark"] { --line: #1f2a25; --card2: #161f1b; }
+body { font-size: 15px; }
+.card, .tile, .ayah, .mushaf, .rtext, .listcard, .player, .search { box-shadow: none !important; border-radius: 16px; }
+.card { padding: 16px; }
+.btn { border-radius: 12px; font-weight: 600; padding: 10px 16px; font-size: 14.5px; }
+.btn.soft { background: var(--card2); color: var(--ink); }
+.btn.ghost { border-width: 1px; }
+button, a { transition: opacity .12s ease, background-color .12s ease; }
+.btn:active, .pill:active, .rec:active, .ib:active, .tile:active, .chip:active, .seg button:active, .pdone:active { opacity: .6; }
+.row:active, a.card:active, .opt:active { background-color: var(--card2); }
+#app > .wrap { animation: pageIn .14s ease-out; }
 body.same #app > .wrap { animation: none; }
-@keyframes pageIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-body::before { content: ""; position: fixed; left: 0; top: 0; height: 3px; width: 0; background: var(--green); z-index: 100; transition: width .6s ease, opacity .3s; opacity: 0; }
-body.busy::before { width: 70%; opacity: 1; }
-.card { transition: box-shadow .2s ease, transform .12s ease; }
-.sw::after { transition: inset-inline-start .2s cubic-bezier(.3, 1.4, .6, 1); }
-.sheet-wrap { animation: fadeBg .18s ease-out; }
-@keyframes fadeBg { from { background: rgba(5, 20, 12, 0); } }
-.toast { animation: toastIn .2s ease-out; }
-@keyframes toastIn { from { opacity: 0; transform: translate(-50%, 8px); } }
-@media (prefers-reduced-motion: reduce) { #app > .wrap, .toast, .sheet, .sheet-wrap { animation: none; } }
-/* a calmer, cleaner look */
-.top h1 { letter-spacing: -.2px; }
-.sec { margin-top: 26px; }
-.card { border-radius: 22px; }
-.tile { border-radius: 20px; padding: 16px 8px; }
-.tile .ic { border-radius: 16px; }
-.rw.tried { animation: shake .3s; }
-@keyframes shake { 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
-.rw.ok { animation: pop .25s ease-out; }
-@keyframes pop { from { transform: scale(1.12); } }
+@keyframes pageIn { from { opacity: 0; } to { opacity: 1; } }
+.sheet { animation: none; } .toast { animation: none; }
+.sec { text-transform: none; letter-spacing: 0; font-size: 13px; font-weight: 600; color: var(--quiet); margin: 28px 2px 10px; }
+[dir="rtl"] .sec { font-size: 14px; }
+.top { border-bottom: 1px solid transparent; }
+.top h1 { font-size: 17px; font-weight: 600; }
+.brand { font-size: 19px; font-weight: 700; }
+.brand img { width: 28px; height: 28px; border-radius: 8px; }
+/* hero: calm, no pattern */
+.hero { border-radius: 20px; box-shadow: none; padding: 18px; }
+.hero::after { display: none; }
+.hero .next .n { font-size: 22px; } .hero .next .c { font-size: 26px; }
+/* continue reading and the streak line */
+.cont { gap: 12px; } .cont .k { letter-spacing: 0; text-transform: none; font-weight: 600; color: var(--quiet); font-size: 12.5px; } .cont .n { font-size: 17px; font-weight: 600; }
+.cont .go { color: var(--quiet); transform: scaleX(-1); display: grid; } [dir="rtl"] .cont .go { transform: none; }
+.streakline { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; margin-top: 10px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--card); font-size: 13.5px; color: var(--muted); }
+.streakline i { grid-column: 1 / -1; height: 4px; border-radius: 4px; background: linear-gradient(90deg, var(--green) var(--p), var(--card2) var(--p)); }
+.daily .k, .today-row .k { text-transform: none !important; letter-spacing: 0 !important; color: var(--quiet) !important; font-weight: 600 !important; }
+.today-row { border-top-color: var(--line); }
+/* tab bar: icons and words, no pills */
+.nav { border-top: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 94%, transparent); }
+.nav .tabsrow a { min-width: 64px; font-size: 10.5px; font-weight: 500; color: var(--quiet); gap: 2px; }
+.nav .pip, .nav a.sk-tab .pip { width: auto; height: 28px; background: none !important; color: inherit; }
+.nav a.on { color: var(--green); font-weight: 600; }
+.nav a.on .pip { background: none; }
+/* section tabs: words with an underline */
+.subnav .wrap { gap: 18px; padding-bottom: 0; border-bottom: 1px solid var(--line); }
+.subnav a { padding: 10px 0; border: 0; border-radius: 0; background: none; font-weight: 500; color: var(--quiet); border-bottom: 2px solid transparent; }
+.subnav a.on { background: none; color: var(--ink); border-bottom-color: var(--green); }
+/* lists and tiles */
+.num { width: 34px; height: 34px; border-radius: 10px; transform: none; font-size: 12.5px; }
+.num span { transform: none; }
+.row .t1 { font-weight: 600; font-size: 15px; }
+.tile { padding: 14px 8px; font-weight: 500; }
+.tile .ic { background: var(--card2); }
+.pill { border-radius: 10px; font-weight: 500; }
+.ayah { border-radius: 16px; padding: 16px; }
+.ayah .bar .ref { background: none; padding: 0; color: var(--quiet); font-weight: 600; }
+.gamecard, .sheikhcard, .friday { background: var(--card) !important; }

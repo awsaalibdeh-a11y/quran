@@ -13,8 +13,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Scheherazade+New:wght@400;600&family=Noto+Naskh+Arabic:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/app.css?v={{ version }}">
+<link rel="stylesheet" href="/static/splash.css?v={{ version }}">
 </head>
 <body>
+{% include "_splash.html" %}
 <div id="app"></div>
 <div id="player" class="player" hidden>
   <div class="pl-info"><div class="pl-title" id="plTitle"></div><div class="pl-sub" id="plSub"></div></div>

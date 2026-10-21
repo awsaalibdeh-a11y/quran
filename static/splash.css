@@ -1,0 +1,45 @@
+/* Opening animation: a mosque at dawn, someone walks up and opens the door, inside they pray, then Noor appears. About 5 s; tap to skip. */
+#splash { position: fixed; inset: 0; z-index: 9999; background: #06140e; display: grid; place-items: center; overflow: hidden; cursor: pointer;
+  animation: spOut .5s ease-in 5.1s forwards; }
+#splash svg { width: min(100vw, 560px); height: min(100vh, 990px); }
+#splash .skip { position: absolute; bottom: calc(22px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); color: rgba(255,255,255,.5); font: 600 13px Inter, sans-serif; letter-spacing: .5px; }
+@keyframes spOut { to { opacity: 0; visibility: hidden; } }
+#splash .sky { animation: spSky 2.6s ease-out forwards; }
+@keyframes spSky { from { opacity: .6; } to { opacity: 1; } }
+#splash .outside { animation: spFadeOut .45s ease-in 2.35s forwards; }
+@keyframes spFadeOut { to { opacity: 0; } }
+#splash .star { animation: spTw 1.6s ease-in-out infinite alternate; }
+@keyframes spTw { from { opacity: .3; } to { opacity: .9; } }
+/* the walker comes up the path to the door */
+#splash .walker { transform-box: fill-box; transform-origin: 50% 100%; animation: spWalk 1.6s cubic-bezier(.4, 0, .4, 1) .4s both, spEnter .45s ease-in 2.05s forwards; }
+@keyframes spWalk { from { transform: translate(0, 190px) scale(1.7); } to { transform: translate(0, 0) scale(1); } }
+@keyframes spEnter { to { transform: translate(0, -6px) scale(.86); opacity: 0; } }
+#splash .walker .legs { animation: spStep .32s ease-in-out .4s 5 alternate; transform-box: fill-box; transform-origin: 50% 0; }
+@keyframes spStep { from { transform: skewX(8deg); } to { transform: skewX(-8deg); } }
+/* the door opens: each leaf swings in on its hinge */
+#splash .leafL { transform-box: fill-box; transform-origin: 0% 50%; animation: spLeaf 0.8s cubic-bezier(.5, 0, .3, 1) 1.45s forwards; }
+#splash .leafR { transform-box: fill-box; transform-origin: 100% 50%; animation: spLeaf 0.8s cubic-bezier(.5, 0, .3, 1) 1.45s forwards; }
+@keyframes spLeaf { to { transform: scaleX(.12); filter: brightness(.6); } }
+#splash .glow { opacity: 0; animation: spGlow .9s ease-out 1.55s forwards; }
+@keyframes spGlow { to { opacity: 1; } }
+/* inside: the prayer, one position after another */
+#splash .inside { opacity: 0; animation: spIn .45s ease-out 2.4s forwards; }
+@keyframes spIn { to { opacity: 1; } }
+#splash .pose { opacity: 0; }
+#splash .p1 { animation: spPose .55s 2.55s both; }
+#splash .p2 { animation: spPose .5s 3.1s both; }
+#splash .p3 { animation: spPose .55s 3.6s both; }
+#splash .p4 { animation: spPose .6s 4.15s both; animation-fill-mode: both; }
+@keyframes spPose { 0% { opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
+#splash .p4 { animation-name: spPoseStay; }
+@keyframes spPoseStay { 0% { opacity: 0; } 25% { opacity: 1; } 100% { opacity: 1; } }
+#splash .lamp { animation: spLamp 2s ease-in-out 2.4s infinite alternate; }
+@keyframes spLamp { from { opacity: .55; } to { opacity: 1; } }
+/* the name */
+#splash .name { opacity: 0; animation: spName .7s cubic-bezier(.2, .8, .2, 1) 4.25s forwards; }
+@keyframes spName { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+#splash .name, #splash .name * { transform-box: fill-box; }
+@media (prefers-reduced-motion: reduce) {
+  #splash { animation: spOut .4s ease-in 1.2s forwards; }
+  #splash .outside { display: none; } #splash .inside { opacity: 1; animation: none; } #splash .p4 { opacity: 1; animation: none; } #splash .name { opacity: 1; animation: none; }
+}
