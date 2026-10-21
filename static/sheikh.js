@@ -39,6 +39,7 @@ function viewSheikh() {
     <p class="sdisc">${L("AI answers can be wrong. Check important matters with a scholar.", "قد يخطئ الذكاء الاصطناعي. تحقّق من المسائل المهمة مع أهل العلم.")}</p></div>`;
   nav("sheikh");
   $("#chat").onclick = refClick;
+  const draft = store.get("sheikhDraft", ""); if (draft) { store.set("sheikhDraft", ""); setTimeout(() => noorAsk(draft), 200); }
   setTimeout(() => window.scrollTo(0, document.body.scrollHeight), 30);
 }
 async function refClick(e) {

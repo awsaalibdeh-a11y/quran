@@ -1,6 +1,6 @@
 // Noor offline: the app shell is cached on install; the Quran files are kept once read (or all at once from Settings).
-const SHELL = "noor-shell-v13", DATA = "noor-data-v1";
-const FILES = ["/", "/static/app.css?v=2.9", "/static/app.js?v=2.9", "/static/extras.js?v=2.9", "/static/recite.js?v=2.9", "/static/more.js?v=2.9", "/static/game.js?v=2.9", "/static/sheikh.js?v=2.9", "/static/account.js?v=2.9", "/static/plus.js?v=2.9", "/static/life.js?v=2.9", "/static/daily.js?v=2.9", "/static/icon-192.png", "/static/icon-512.png", "/manifest.webmanifest", "/static/q/index.json?v=1", "/static/q/pages.json?v=1", "/static/adhan/adhan.mp3"];
+const SHELL = "noor-shell-v14", DATA = "noor-data-v1";
+const FILES = ["/", "/static/app.css?v=3.0", "/static/app.js?v=3.0", "/static/extras.js?v=3.0", "/static/recite.js?v=3.0", "/static/more.js?v=3.0", "/static/game.js?v=3.0", "/static/sheikh.js?v=3.0", "/static/account.js?v=3.0", "/static/plus.js?v=3.0", "/static/life.js?v=3.0", "/static/daily.js?v=3.0", "/static/deen.js?v=3.0", "/static/hadith/nawawi.json?v=1", "/static/icon-192.png", "/static/icon-512.png", "/manifest.webmanifest", "/static/q/index.json?v=1", "/static/q/pages.json?v=1", "/static/adhan/adhan.mp3"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(SHELL).then(c => c.addAll(FILES)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== SHELL && k !== DATA && !k.startsWith("noor-font") && !k.startsWith("noor-audio") && !k.startsWith("noor-extra")).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener("fetch", e => {

@@ -128,11 +128,11 @@ const TABS = [
   ["home", "/", "Home", "الرئيسية", () => ICON.home, [/^\/$/, /^\/daily/]],
   ["quran", "/quran", "Quran", "القرآن", () => ICON.quran, [/^\/quran/, /^\/s\//, /^\/search/, /^\/page/, /^\/notes/]],
   ["sheikh", "/sheikh", "Sheikh Aws", "الشيخ أوس", () => `<span style="font-family:'Noto Naskh Arabic',serif;font-weight:700;font-size:19px;line-height:1">ش</span>`, [/^\/sheikh/]],
-  ["listen", "/listen", "Listen", "استمع", () => ICON.head, [/^\/listen/]],
-  ["prayer", "/prayer", "Prayer", "الصلاة", () => ICON.mosque, [/^\/prayer/, /^\/qibla/, /^\/calendar/, /^\/zakat/]],
+  ["listen", "/listen", "Listen", "استمع", () => ICON.head, [/^\/listen/, /^\/playlists/]],
+  ["prayer", "/prayer", "Prayer", "الصلاة", () => ICON.mosque, [/^\/prayer/, /^\/qibla/, /^\/calendar/, /^\/zakat/, /^\/sunnah/, /^\/mosques/]],
   ["recite", "/recite/1/1", "Recite", "التسميع", () => ICON.mic, [/^\/recite/]],
   ["hifz", "/hifz", "Memorize", "الحفظ", () => ICON.brain, [/^\/hifz/, /^\/khatma/]],
-  ["adhkar", "/adhkar/morning", "Adhkar", "الأذكار", () => ICON.sun, [/^\/adhkar/, /^\/duas/, /^\/names/, /^\/feel/, /^\/tasbih/]],
+  ["adhkar", "/adhkar/morning", "Adhkar", "الأذكار", () => ICON.sun, [/^\/adhkar/, /^\/duas/, /^\/names/, /^\/feel/, /^\/tasbih/, /^\/hadith/]],
   ["ramadan", "/ramadan", "Ramadan", "رمضان", () => ICON.moon, [/^\/ramadan/]],
   ["learn", "/letters", "Learn", "تعلّم", () => `<span style="font-family:'Noto Naskh Arabic',serif;font-weight:700;font-size:15px;line-height:1">أب</span>`, [/^\/letters/, /^\/quiz/, /^\/game/]],
   ["family", "/account", "Family", "العائلة", () => `<span style="font-size:19px;line-height:1">👪</span>`, [/^\/account/]],
@@ -141,9 +141,10 @@ const TABS = [
 // the buttons along the top of a tab that holds more than one page
 const SUBS = {
   quran: [["/quran", "Surahs", "السور"], ["/page", "Mushaf pages", "صفحات المصحف"], ["/notes", "My notes", "ملاحظاتي"], ["/daily", "Ayah of the day", "آية اليوم"]],
-  prayer: [["/prayer", "Times", "المواقيت"], ["/qibla", "Qibla", "القبلة"], ["/calendar", "Hijri calendar", "التقويم"], ["/zakat", "Zakat", "الزكاة"]],
+  prayer: [["/prayer", "Times", "المواقيت"], ["/sunnah", "Sunnah tracker", "السنن"], ["/mosques", "Mosques", "المساجد"], ["/qibla", "Qibla", "القبلة"], ["/calendar", "Hijri calendar", "التقويم"], ["/zakat", "Zakat", "الزكاة"]],
+  listen: [["/listen", "Reciters and surahs", "القراء والسور"], ["/playlists", "Playlists", "قوائم الاستماع"]],
   hifz: [["/hifz", "Memorize", "الحفظ"], ["/khatma", "Khatma plan", "خطة الختمة"]],
-  adhkar: [["/adhkar/morning", "Morning", "الصباح"], ["/adhkar/evening", "Evening", "المساء"], ["/duas", "Quran duas", "أدعية قرآنية"], ["/names", "99 Names", "الأسماء الحسنى"], ["/feel", "How I feel", "كيف أشعر"], ["/tasbih", "Tasbih", "المسبحة"]],
+  adhkar: [["/adhkar/morning", "Morning", "الصباح"], ["/adhkar/evening", "Evening", "المساء"], ["/duas", "Quran duas", "أدعية قرآنية"], ["/hadith", "40 Hadith", "الأربعون النووية"], ["/names", "99 Names", "الأسماء الحسنى"], ["/feel", "How I feel", "كيف أشعر"], ["/tasbih", "Tasbih", "المسبحة"]],
   learn: [["/letters", "Letters", "الحروف"], ["/quiz", "Quiz", "مسابقة"], ["/game", "Noor Quest", "رحلة نور"]],
 };
 function tabOf(h) { return (TABS.find(tb => tb[5].some(re => re.test(h))) || TABS[0])[0]; }
@@ -192,6 +193,9 @@ async function viewHome() {
       ${tile("#/duas", ICON.book, L("Quran duas", "أدعية قرآنية"))}
       ${tile("#/game", ICON.play, L("Noor Quest", "رحلة نور"))}
       ${tile("#/account", ICON.home, L("Family", "العائلة"))}
+      ${tile("#/hadith", ICON.book, L("40 Hadith", "الأربعون"))}
+      ${tile("#/playlists", ICON.head, L("Playlists", "قوائم الاستماع"))}
+      ${tile("#/sunnah", ICON.check, L("Sunnah tracker", "متابعة السنن"))}
     </div>
     <a class="card gamecard" href="#/game"><span class="gc-art">🌙</span><div><b>${L("Noor Quest", "رحلة نور")}</b><span>${L("A jump-and-run game with Quran questions", "لعبة قفز وجري مع أسئلة عن القرآن")}</span></div><span class="btn">${L("Play", "العب")}</span></a>
     <div class="sec">${t("daily")}</div><div id="daily"></div>
@@ -401,6 +405,14 @@ const player = {
   },
   toggle() { if (this.audio.paused) this.audio.play().catch(() => { }); else this.audio.pause(); },
   async step(d) {
+    const qu = this.queue;
+    if (qu && d > 0 && this.queue[this.qi] && this.a >= qu[this.qi][2] && this.s === qu[this.qi][0]) {
+      this.qi++;
+      if (this.qi >= qu.length) { this.queue = null; toast(L("Playlist finished", "انتهت القائمة")); return this.stop(); }
+      const [s, a] = qu[this.qi]; this.s = s; this.a = a; this.count = (await surah(s)).count; this.left = this.repeat;
+      if (location.hash.startsWith("#/s/")) location.hash = `#/s/${s}/${a}`;
+      await this.load(); this.audio.play().catch(() => { }); return;
+    }
     const lp = this.loop;
     if (lp && lp.s === this.s && d > 0 && this.a >= lp.b) {
       lp.done++;
@@ -415,7 +427,7 @@ const player = {
     } else { this.a = a; this.left = this.repeat; }
     await this.load(); this.audio.play().catch(() => { });
   },
-  stop() { this.loop = null; this.audio.pause(); this.playing = false; $("#player").hidden = true; document.body.classList.remove("playing"); this.s = 0; this.paint(); },
+  stop() { this.loop = null; this.queue = null; this.audio.pause(); this.playing = false; $("#player").hidden = true; document.body.classList.remove("playing"); this.s = 0; this.paint(); },
 };
 player.audio.addEventListener("play", () => { player.playing = true; $("#plIcon").innerHTML = '<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>'; player.paint(true); });
 player.audio.addEventListener("pause", () => { player.playing = false; $("#plIcon").innerHTML = '<path d="M8 5v14l11-7z"/>'; });

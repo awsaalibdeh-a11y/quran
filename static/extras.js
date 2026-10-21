@@ -182,6 +182,7 @@ async function viewPrayer() {
     <div class="card"><div class="pweek">${Array.from({ length: 7 }, (_, i) => { const d = new Date(Date.now() - (6 - i) * 864e5), P = store.get("prayed-" + dayKey(d), {});
       const c = ["fajr", "dhuhr", "asr", "maghrib", "isha"].filter(k => P[k]).length; return `<span><i style="height:${8 + c * 10}px;opacity:${c ? 1 : .35}"></i>${num(c)}</span>`; }).join("")}</div></div>
     ${window.noorAdhanCard ? noorAdhanCard() : ""}
+    ${window.noorNightCard ? noorNightCard() : ""}
     <div class="sec">${L("Settings", "الإعدادات")}</div>
     <div class="card" style="padding:4px 14px">
       <div class="opt"><span class="l">${L("Method", "طريقة الحساب")}</span><select class="sel" onchange="S.method=this.value; store.set('methodSet', true); saveS(); if (window.noorAdhanSync) noorAdhanSync(); route()">${Object.entries(METHODS).map(([k, m]) => `<option value="${k}" ${k === S.method ? "selected" : ""}>${isAr() ? m.ar : m.en}</option>`).join("")}</select></div>

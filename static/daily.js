@@ -20,13 +20,14 @@ window.daily = async idx => {
   const read = store.get("dailyRead", {})[dk(now)];
   const names = window.noorMore ? noorMore.NAMES : null, name = names ? names[dayNum(now) % names.length] : null;
   const duas = window.noorMore && noorMore.DUAS, du = duas ? duas[dayNum(now) % duas.length] : null;
-  let duaHtml = "";
+  let duaHtml = "", hadHtml = "";
+  if (window.noorHadithOfDay) { try { const h = await noorHadithOfDay(); hadHtml = `<a class="today-row" href="#/hadith/${h.n}"><span class="k">📜 ${L("Hadith of the day", "حديث اليوم")}</span><span class="t">${esc(isAr() ? h.ar.slice(0, 160) : h.en.replace(/^.*?(said|say)[:,]?\s*/i, "").slice(0, 150))}…</span></a>`; } catch { } }
   if (du) { const d = await surah(du[0]), t = d.ayahs.slice(du[1] - 1, du[2]); duaHtml = `<a class="today-row" href="#/s/${du[0]}/${du[1]}"><span class="k">🤲 ${L("Dua of the day", "دعاء اليوم")}</span><span class="q t">${t.map(x => x.ar).join(" ")}</span></a>`; }
   box.innerHTML = `<div class="card daily"><a href="#/daily" style="display:block"><div class="k" style="color:var(--green);font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px">${read ? "✓ " : ""}${L("Ayah of the day", "آية اليوم")}</div>
       <div class="ar q">${ay.ar}</div>${S.en ? `<div class="en">${esc(ay.en)}</div>` : ""}<div class="ref">${esc(sName(idx.surahs[r.s - 1]))} ${num(r.s)}:${num(r.a)}</div></a>
     <div class="cnt" style="margin-top:10px"><button class="btn soft" onclick="player.start(${r.s}, ${r.a})">${ICON.play}${L("Listen", "استمع")}</button><a class="btn soft" href="#/daily">${ICON.book}${L("Reflect", "تدبّر")}</a>
       <button class="btn ghost" onclick="noorShareImage(${r.s}, ${r.a})">${ICON.star}${L("Share", "شارك")}</button></div>
-    ${duaHtml}${name ? `<a class="today-row" href="#/names"><span class="k">✨ ${L("Name of the day", "اسم اليوم")}</span><span class="t"><b class="q">${name[0]}</b> · ${esc(name[1])}, ${esc(name[2])}</span></a>` : ""}</div>`;
+    ${duaHtml}${hadHtml}${name ? `<a class="today-row" href="#/names"><span class="k">✨ ${L("Name of the day", "اسم اليوم")}</span><span class="t"><b class="q">${name[0]}</b> · ${esc(name[1])}, ${esc(name[2])}</span></a>` : ""}</div>`;
 };
 
 /* ---------- Friday: Al-Kahf (from Thursday's Maghrib, when Friday begins) ---------- */

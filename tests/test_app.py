@@ -63,7 +63,7 @@ class Audio(unittest.TestCase):
 
     def test_new_pages_ship(self):
         c = server.app.test_client()
-        for f in ("app.js", "extras.js", "recite.js", "more.js", "game.js", "sheikh.js", "account.js", "plus.js", "life.js", "daily.js", "app.css"):
+        for f in ("app.js", "extras.js", "recite.js", "more.js", "game.js", "sheikh.js", "account.js", "plus.js", "life.js", "daily.js", "deen.js", "app.css"):
             self.assertEqual(c.get("/static/" + f).status_code, 200)
         self.assertIn(b"extras.js", c.get("/").data)
 

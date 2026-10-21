@@ -12,7 +12,7 @@ from flask import Flask, Response, jsonify, render_template, request, send_from_
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 Q = os.path.join(ROOT, "static", "q")
-VERSION = "2.9"
+VERSION = "3.0"
 HOMEBASE_URL = os.environ.get("HOMEBASE_URL", "https://homebase-family.onrender.com").rstrip("/")
 
 app = Flask(__name__)
