@@ -34,7 +34,7 @@ const store = {
   set(k, v) { try { localStorage.setItem("noor." + k, JSON.stringify(v)); } catch { } },
 };
 const S = Object.assign({ lang: "en", theme: "light", ar: 32, font: "scheherazade", en: true, tr: false, mushaf: false, reciter: "ar.mahermuaiqly",
-  speed: 1, goal: 10, ramadan: "auto", method: "mwl", asr: "std", loc: null }, store.get("settings", {}));
+  speed: 1, goal: 10, sky: true, ramadan: "auto", method: "mwl", asr: "std", loc: null }, store.get("settings", {}));
 if (!store.get("v2", false)) { S.reciter = "ar.mahermuaiqly"; if (S.ar < 32) S.ar = 32; store.set("v2", true); }        // 2.0: Maher by default, bigger text
 const saveS = () => store.set("settings", S);
 let bookmarks = store.get("bookmarks", []);
@@ -382,7 +382,11 @@ const player = {
 player.audio.addEventListener("play", () => { player.playing = true; $("#plIcon").innerHTML = '<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>'; player.paint(true); });
 player.audio.addEventListener("pause", () => { player.playing = false; $("#plIcon").innerHTML = '<path d="M8 5v14l11-7z"/>'; });
 player.audio.addEventListener("timeupdate", () => { const a = player.audio; $("#plFill").style.width = a.duration ? (a.currentTime / a.duration * 100) + "%" : "0"; });
-player.audio.addEventListener("ended", () => { if (--player.left > 0) { player.audio.currentTime = 0; player.audio.play(); } else player.step(1); });
+player.audio.addEventListener("ended", () => {
+  const gap = player.loop && player.loop.gap ? Math.min(30, (player.audio.duration || 4) * 1.1) * 1000 : 0;          // listen and repeat: a quiet turn to say it back
+  const next = () => { if (!player.s) return; if (--player.left > 0) { player.audio.currentTime = 0; player.audio.play(); } else player.step(1); };
+  if (gap) { $("#plSub").textContent = L("Your turn: repeat it…", "دورك: كرّرها…"); setTimeout(next, gap); } else next();
+});
 player.audio.addEventListener("error", () => { if (player.s) toast(L("Could not play: check the internet, or download this surah in Listen", "تعذّر التشغيل: تحقق من الإنترنت، أو حمّل السورة من صفحة الاستماع")); });
 $("#plPlay").onclick = () => player.toggle();
 $("#plNext").onclick = () => player.step(1);
@@ -414,7 +418,8 @@ window.openSettings = () => {
   const offline = store.get("offline", false);
   sheet(`<h3>${t("settings")}</h3>
     <div class="opt"><span class="l">${L("Language", "اللغة")}</span>${seg("lang", [["en", "English"], ["ar", "العربية"]])}</div>
-    <div class="opt"><span class="l">${L("Look", "المظهر")}</span>${seg("theme", [["light", L("Light", "فاتح")], ["sepia", L("Sepia", "ورقي")], ["dark", L("Dark", "داكن")]])}</div>
+    <div class="opt"><span class="l">${L("Look", "المظهر")}</span>${seg("theme", [["light", L("Light", "فاتح")], ["sepia", L("Sepia", "ورقي")], ["dark", L("Dark", "داكن")], ["auto", L("Auto", "تلقائي")]])}</div>
+    <div class="opt"><span class="l">${L("Sun and moon sky", "سماء الشمس والقمر")}<div class="d">${L("On the home card, where the sun or moon really is now", "في بطاقة الرئيسية، حيث الشمس أو القمر الآن")}</div></span>${sw("sky")}</div>
     <div class="opt" style="display:block"><div style="display:flex;align-items:center;gap:12px"><span class="l">${L("Quran font", "خط المصحف")}</span>${seg("font", [["scheherazade", L("Clear", "واضح")], ["amiri", L("Classic", "كلاسيكي")], ["naskh", L("Simple", "بسيط")]])}</div>
       <div class="q" style="font-size:${S.ar}px;line-height:1.9;text-align:center;direction:rtl;margin-top:8px" id="arPrev">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
       <div style="display:flex;align-items:center;gap:12px"><span class="l d">${L("Size", "الحجم")}</span><input type="range" min="24" max="54" value="${S.ar}" style="flex:1"

@@ -98,6 +98,7 @@ async function viewAccount(m) {
     <div class="hero" style="margin-top:6px"><div class="d1">${L("Linked with Mellow", "مربوط مع ميلو")}</div><div class="n" style="font-size:24px;font-weight:800;margin-top:4px">${esc(me.emoji || "")} ${esc(me.name)}</div>
       <div class="row2"><span class="chipw">👪 ${esc(f.family || a.family || "")}</span><span class="chipw">${isPar ? L("Parent", "والد/ة") : L("Family member", "فرد من العائلة")}</span></div></div>
     <div class="sec">${L("My tasks", "مهامي")}</div>${mine.filter(x => !x.done).map(x => taskRow(x, idx, true)).join("") || `<div class="card" style="color:var(--muted)">${L("No tasks right now.", "لا توجد مهام الآن.")}</div>`}
+    <div class="sec">${L("Family khatma", "الختمة العائلية")}</div>${window.noorKhatmaHtml ? noorKhatmaHtml(f.khatma, me.id) : ""}
     ${isPar ? `<div class="sec">${L("Give a task", "أعطِ مهمة")}</div><div class="card" style="padding:4px 14px">
       <div class="opt"><span class="l">${L("For", "إلى")}</span><select class="sel" id="tTo">${f.members.filter(p => p.id !== me.id).map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join("")}</select></div>
       <div class="opt"><span class="l">${L("Task", "المهمة")}</span><div class="seg" id="tKind">${["read", "memorize", "revise"].map((k, i) => `<button class="${i ? "" : "on"}" data-k="${k}">${kindWord(k)}</button>`).join("")}</div></div>

@@ -107,12 +107,13 @@ window.noorLoop = async n => {
     <div class="opt"><span class="l">${L("From ayah", "من آية")}</span><input id="lpA" class="sel" inputmode="numeric" value="1" style="width:80px"></div>
     <div class="opt"><span class="l">${L("To ayah", "إلى آية")}</span><input id="lpB" class="sel" inputmode="numeric" value="${Math.min(d.count, 5)}" style="width:80px"></div>
     <div class="opt"><span class="l">${L("Each ayah", "كل آية")}</span><div class="seg" id="lpE">${[1, 2, 3, 5].map((v, i) => `<button class="${i === 2 ? "on" : ""}" data-v="${v}">${num(v)}×</button>`).join("")}</div></div>
+    <div class="opt"><span class="l">${L("Pause for me to repeat", "توقف لأكرر بعده")}<div class="d">${L("After each ayah, a quiet gap as long as the ayah", "بعد كل آية، صمت بطولها لتعيدها")}</div></span><button class="sw" id="lpGap" onclick="this.classList.toggle('on')"></button></div>
     <div class="opt"><span class="l">${L("The whole range", "المقطع كله")}</span><div class="seg" id="lpR">${[1, 3, 5, 10].map((v, i) => `<button class="${i === 1 ? "on" : ""}" data-v="${v}">${num(v)}×</button>`).join("")}</div></div>
     <button class="btn wide" style="margin-top:12px" id="lpGo">${ICON.play}${L("Start", "ابدأ")}</button>`);
   for (const id of ["#lpE", "#lpR"]) $(id).onclick = e => { const b = e.target.closest("button"); if (b) $(id).querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); };
   $("#lpGo").onclick = () => {
     const a = Math.max(1, Math.min(d.count, +$("#lpA").value || 1)), b = Math.max(a, Math.min(d.count, +$("#lpB").value || a));
-    player.loop = { s: n, a, b, each: +$("#lpE .on").dataset.v, times: +$("#lpR .on").dataset.v, done: 0 };
+    player.loop = { s: n, a, b, each: +$("#lpE .on").dataset.v, times: +$("#lpR .on").dataset.v, done: 0, gap: $("#lpGap").classList.contains("on") };
     player.repeat = player.loop.each; closeSheet(); player.start(n, a);
     toast(L(`Ayahs ${a}–${b}, ${player.loop.times} times`, `الآيات ${a}–${b}، ${player.loop.times} مرات`));
   };
@@ -154,6 +155,9 @@ function viewStats() {
     <div class="sec">${L("Last 30 days", "آخر ٣٠ يومًا")}<a>${num(active)} ${L("active days", "يوم نشط")}</a></div>
     <div class="card"><div class="bars">${last30.map(([d, v]) => `<span title="${d.toLocaleDateString()}: ${v}"><i style="height:${Math.max(3, v / max * 100)}%;opacity:${v ? 1 : .25}"></i></span>`).join("")}</div>
       <div style="display:flex;justify-content:space-between;color:var(--quiet);font-size:11.5px;margin-top:6px"><span>${last30[0][0].toLocaleDateString(isAr() ? "ar-EG" : "en-GB", { day: "numeric", month: "short" })}</span><span>${L("today", "اليوم")}</span></div></div>
+    <div class="stat3" style="margin-top:12px"><div class="card"><div class="v">${num(noorReadMinutes(1))}</div><div class="l">${L("minutes today", "دقيقة اليوم")}</div></div>
+      <div class="card"><div class="v">${num(noorReadMinutes(7))}</div><div class="l">${L("this week", "هذا الأسبوع")}</div></div><div class="card"><div class="v">${num(noorReadMinutes(30))}</div><div class="l">${L("this month", "هذا الشهر")}</div></div></div>
+    <button class="btn wide soft" style="margin-top:12px" onclick="noorShareProgress()">${ICON.star}${L("Share my progress card", "شارك بطاقة تقدمي")}</button>
     <div class="sec">${L("Badges", "الأوسمة")}<a>${num(Object.keys(have).length)} / ${num(BADGES.length)}</a></div>
     <div class="badges">${BADGES.map(([id, ic, en, ar]) => `<div class="bdg ${have[id] ? "on" : ""}"><span class="i">${have[id] ? ic : "🔒"}</span><span>${isAr() ? ar : en}</span></div>`).join("")}</div></div>`;
   nav("more");

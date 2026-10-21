@@ -68,7 +68,7 @@ function locate(done) {
   navigator.geolocation.getCurrentPosition(p => {
     S.loc = { lat: +p.coords.latitude.toFixed(4), lng: +p.coords.longitude.toFixed(4), at: Date.now() };
     if (!store.get("methodSet", false)) S.method = guessMethod(S.loc);
-    saveS(); toast(L("Location saved on this device", "تم حفظ الموقع على هذا الجهاز")); done && done();
+    saveS(); if (window.noorAdhanSync) noorAdhanSync(); toast(L("Location saved on this device", "تم حفظ الموقع على هذا الجهاز")); done && done();
   }, () => toast(L("Location is off. Allow it, or pick a city.", "الموقع مغلق. اسمح به أو اختر مدينة.")), { enableHighAccuracy: false, timeout: 15000, maximumAge: 6 * 3600e3 });
 }
 function guessMethod({ lat, lng }) {                                       // the usual method for the region
@@ -129,7 +129,7 @@ window.heroCard = () => {
       main = `<div class="next"><div><div class="l">${L("Next prayer", "الصلاة القادمة")}</div><div class="n">${pname(n.k)} ${hm(n.at)}</div></div>
         <div style="text-align:end"><div class="l">${L("in", "بعد")}</div><div class="c">${left(n.at - now)}</div></div></div>`;
     }
-    box.innerHTML = `<a class="hero" href="${isRamadan() ? "#/ramadan" : "#/prayer"}" style="display:block"><div class="d1">${greg}</div><div class="d2">${h.text}</div>${main}</a>`;
+    box.innerHTML = `<a class="hero ${S.sky === false ? "" : "sky"}" href="${isRamadan() ? "#/ramadan" : "#/prayer"}" style="display:block">${window.noorSkySvg ? noorSkySvg() : ""}<div class="d1">${greg}</div><div class="d2">${h.text}</div>${main}</a>`;
   };
   draw(); heroTimer = setInterval(draw, 30000);
 };
@@ -155,9 +155,10 @@ async function viewPrayer() {
     <div class="sec">${L("Prayers this week", "صلوات هذا الأسبوع")}<a>${num(weekCount)} / ${num(35)}</a></div>
     <div class="card"><div class="pweek">${Array.from({ length: 7 }, (_, i) => { const d = new Date(Date.now() - (6 - i) * 864e5), P = store.get("prayed-" + dayKey(d), {});
       const c = ["fajr", "dhuhr", "asr", "maghrib", "isha"].filter(k => P[k]).length; return `<span><i style="height:${8 + c * 10}px;opacity:${c ? 1 : .35}"></i>${num(c)}</span>`; }).join("")}</div></div>
+    ${window.noorAdhanCard ? noorAdhanCard() : ""}
     <div class="sec">${L("Settings", "الإعدادات")}</div>
     <div class="card" style="padding:4px 14px">
-      <div class="opt"><span class="l">${L("Method", "طريقة الحساب")}</span><select class="sel" onchange="S.method=this.value; store.set('methodSet', true); saveS(); route()">${Object.entries(METHODS).map(([k, m]) => `<option value="${k}" ${k === S.method ? "selected" : ""}>${isAr() ? m.ar : m.en}</option>`).join("")}</select></div>
+      <div class="opt"><span class="l">${L("Method", "طريقة الحساب")}</span><select class="sel" onchange="S.method=this.value; store.set('methodSet', true); saveS(); if (window.noorAdhanSync) noorAdhanSync(); route()">${Object.entries(METHODS).map(([k, m]) => `<option value="${k}" ${k === S.method ? "selected" : ""}>${isAr() ? m.ar : m.en}</option>`).join("")}</select></div>
       <div class="opt"><span class="l">${L("Asr", "العصر")}</span><div class="seg"><button class="${S.asr !== "hanafi" ? "on" : ""}" onclick="S.asr='std'; saveS(); route()">${L("Standard", "الجمهور")}</button><button class="${S.asr === "hanafi" ? "on" : ""}" onclick="S.asr='hanafi'; saveS(); route()">${L("Hanafi", "الحنفي")}</button></div></div>
       <div class="opt"><span class="l">${L("Location", "الموقع")}<div class="d">${S.loc.name || `${S.loc.lat}, ${S.loc.lng}`}</div></span><button class="btn soft" onclick="noorLocate()">${ICON.pin}${L("Update", "تحديث")}</button></div>
     </div>
@@ -167,7 +168,7 @@ async function viewPrayer() {
   nav("prayer"); heroCard();
 }
 window.noorPrayed = k => { const key = "prayed-" + today(), P = store.get(key, {}); P[k] = !P[k]; store.set(key, P); if (P[k] && navigator.vibrate) navigator.vibrate(30); const y = scrollY; route().then(() => scrollTo(0, y)); };
-window.noorCity = i => { const c = CITIES[i]; S.loc = { lat: c[2], lng: c[3], name: isAr() ? c[1] : c[0] }; if (!store.get("methodSet", false)) S.method = guessMethod(S.loc); saveS(); route(); };
+window.noorCity = i => { const c = CITIES[i]; S.loc = { lat: c[2], lng: c[3], name: isAr() ? c[1] : c[0] }; if (!store.get("methodSet", false)) S.method = guessMethod(S.loc); saveS(); if (window.noorAdhanSync) noorAdhanSync(); route(); };
 
 /* ---------- Qibla ---------- */
 function qibla(lat, lng) {
@@ -250,6 +251,8 @@ function viewMore() {
     <a class="tile" href="#/account"><span class="ic" style="font-size:22px">👪</span>${L("Family account", "حساب العائلة")}</a>
     <a class="tile" href="#/sheikh"><span class="ic" style="font-family:'Noto Naskh Arabic';font-size:22px;font-weight:700">ش</span>${L("Sheikh Aws", "الشيخ أوس")}</a>
     ${tile("#/recite/1/1", ICON.mic, L("Recite", "التسميع"))}${tile("#/hifz", ICON.brain, L("Memorize", "الحفظ"))}${tile("#/ramadan", ICON.moon, L("Ramadan", "رمضان"))}
+    <a class="tile" href="#/feel"><span class="ic" style="font-size:22px">💭</span>${L("How I feel", "كيف أشعر")}</a>
+    <a class="tile" href="#/letters"><span class="ic" style="font-size:20px;font-family:'Noto Naskh Arabic'">أ ب</span>${L("Learn letters", "تعلّم الحروف")}</a>
     ${tile("#/adhkar/morning", ICON.sun, L("Morning adhkar", "أذكار الصباح"))}${tile("#/adhkar/evening", ICON.moon, L("Evening adhkar", "أذكار المساء"))}${tile("#/tasbih", ICON.beads, t("tasbih"))}
     ${tile("#/qibla", ICON.compass, L("Qibla", "القبلة"))}${tile("#/names", ICON.star, L("99 Names", "الأسماء الحسنى"))}${tile("#/duas", ICON.book, L("Quran duas", "أدعية قرآنية"))}
     ${tile("#/khatma", ICON.quran, L("Khatma plan", "خطة الختمة"))}${tile("#/notes", ICON.mark, L("My notes", "ملاحظاتي"))}${tile("#/calendar", ICON.moon, L("Hijri calendar", "التقويم الهجري"))}

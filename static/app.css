@@ -396,3 +396,17 @@ h2.big { font-size: 26px; margin: 10px 2px 0; letter-spacing: -.3px; }
 /* the universal account chip sits above the tab bar */
 .hub-chip { bottom: calc(var(--nav) + 14px + env(safe-area-inset-bottom)) !important; }
 .hub-box { bottom: calc(var(--nav) + 56px + env(safe-area-inset-bottom)) !important; }
+
+/* 2.7: sun and moon sky in the home card, letters, feelings */
+.hero.sky { background: #0b2a40; }
+.hero.sky::after { opacity: .05; }
+.hero > .skybg { position: absolute; inset: 0; z-index: 0; }
+.hero > .skybg svg { width: 100%; height: 100%; display: block; }
+.hero.sky .d1, .hero.sky .d2, .hero.sky .next { text-shadow: 0 1px 6px rgba(0, 0, 0, .35); }
+.letters { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; direction: rtl; }
+.lt { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 10px 4px; display: flex; flex-direction: column; align-items: center; box-shadow: var(--shadow); }
+.lt.on { border-color: var(--green); background: var(--hl); }
+.lt .a { font-family: "Noto Naskh Arabic", serif; font-size: 34px; line-height: 1.4; color: var(--green); } .lt .n { font-size: 12px; color: var(--muted); direction: ltr; }
+.vow { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; direction: rtl; }
+.vow > * { display: flex; flex-direction: column; align-items: center; padding: 8px 14px; border-radius: 14px; background: var(--card2); min-width: 64px; }
+.vow .a { font-size: 38px; line-height: 1.5; font-family: "Noto Naskh Arabic", serif; } .vow span:last-child { font-size: 12px; color: var(--muted); }
