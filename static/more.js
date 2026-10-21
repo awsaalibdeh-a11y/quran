@@ -133,7 +133,7 @@ function viewCalendar() {
   // this Hijri month as a grid
   const h0 = hparts(now); let start = new Date(now.getTime() - (h0.d - 1) * 864e5);
   const days = []; for (let i = 0; i < 31; i++) { const d = new Date(start.getTime() + i * 864e5), h = hparts(d); if (h.m !== h0.m) break; days.push([d, h]); }
-  const cal = noorHijri.hijriCal(), month = new Intl.DateTimeFormat(isAr() ? `ar-SA-u-ca-${cal}` : `en-u-ca-${cal}`, { month: "long", year: "numeric" }).format(new Date(now.getTime() + (S.hadj || 0) * 864e5));
+  const cal = noorHijri.hijriCal(), month = noorHijri.hijriText(new Date(now.getTime() + (S.hadj || 0) * 864e5), cal, false);
   const wk = isAr() ? ["ح", "ن", "ث", "ر", "خ", "ج", "س"] : ["S", "M", "T", "W", "T", "F", "S"];
   const pad = days[0][0].getDay();
   app.innerHTML = topbar(`<h1>${L("Hijri calendar", "التقويم الهجري")}</h1>`) + `<div class="wrap">

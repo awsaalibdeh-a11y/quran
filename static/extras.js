@@ -91,19 +91,45 @@ function hijriCal() {
   return !S.loc || GULF(S.loc) ? "islamic-umalqura" : "islamic";
 }
 const HCAL_NAMES = { "islamic-umalqura": ["Umm al-Qura (Saudi Arabia)", "أم القرى (السعودية)"], "islamic": ["Astronomical (moon sighting)", "فلكي (رؤية الهلال)"], "islamic-civil": ["Tabular (civil)", "الحسابي"] };
+// Some browsers (the Android WebView among them) do not know the Islamic calendars and quietly print a Gregorian date instead.
+// Check that the calendar really was used; otherwise fall back to the tabular Hijri calendar worked out here.
+const calOk = {};
+function supported(cal) {
+  if (cal in calOk) return calOk[cal];
+  try { calOk[cal] = new Intl.DateTimeFormat(`en-u-ca-${cal}`).resolvedOptions().calendar === cal && /AH|هـ/.test(new Intl.DateTimeFormat(`en-u-ca-${cal}`, { year: "numeric", era: "short" }).format(new Date())); }
+  catch { calOk[cal] = false; }
+  return calOk[cal];
+}
+function pickCal(cal) { return [cal, "islamic-umalqura", "islamic", "islamic-civil"].find(supported) || null; }
+function tabular(d) {                                                        // the arithmetic (Kuwaiti) Hijri calendar
+  const jd = Math.floor(d.getTime() / 864e5 + 2440587.5) + 0.5 | 0;
+  let l = jd - 1948440 + 10632; const n = Math.floor((l - 1) / 10631); l = l - 10631 * n + 354;
+  const j = Math.floor((10985 - l) / 5316) * Math.floor(50 * l / 17719) + Math.floor(l / 5670) * Math.floor(43 * l / 15238);
+  l = l - Math.floor((30 - j) / 15) * Math.floor(17719 * j / 50) - Math.floor(j / 16) * Math.floor(15238 * j / 43) + 29;
+  const m = Math.floor(24 * l / 709), day = l - Math.floor(709 * m / 24), y = 30 * n + j - 30;
+  return { d: day, m, y };
+}
+const HMONTHS = [["Muharram", "محرم"], ["Safar", "صفر"], ["Rabi' al-Awwal", "ربيع الأول"], ["Rabi' al-Thani", "ربيع الآخر"], ["Jumada al-Ula", "جمادى الأولى"], ["Jumada al-Akhirah", "جمادى الآخرة"],
+  ["Rajab", "رجب"], ["Sha'ban", "شعبان"], ["Ramadan", "رمضان"], ["Shawwal", "شوال"], ["Dhu al-Qa'dah", "ذو القعدة"], ["Dhu al-Hijjah", "ذو الحجة"]];
 function hijriParts(d, cal) {
-  const f = new Intl.DateTimeFormat(`en-u-ca-${cal}-nu-latn`, { day: "numeric", month: "numeric", year: "numeric" });
+  const c = pickCal(cal);
+  if (!c) return tabular(d);
+  const f = new Intl.DateTimeFormat(`en-u-ca-${c}-nu-latn`, { day: "numeric", month: "numeric", year: "numeric" });
   const p = Object.fromEntries(f.formatToParts(d).map(x => [x.type, x.value])); return { d: +p.day, m: +p.month, y: parseInt(p.year) };
+}
+function hijriText(d, cal, withDay = true) {
+  const c = pickCal(cal);
+  if (c) return new Intl.DateTimeFormat(isAr() ? `ar-SA-u-ca-${c}` : `en-u-ca-${c}`, withDay ? { day: "numeric", month: "long", year: "numeric" } : { month: "long", year: "numeric" }).format(d);
+  const h = tabular(d), mn = HMONTHS[h.m - 1][isAr() ? 1 : 0];
+  return isAr() ? `${withDay ? arNum(h.d) + " " : ""}${mn} ${arNum(h.y)} هـ` : `${withDay ? mn + " " + h.d + ", " : mn + " "}${h.y} AH`;
 }
 function hijri(d = new Date()) {
   try {
     const cal = hijriCal(), shifted = new Date(d.getTime() + (S.hadj || 0) * 864e5);
-    const parts = hijriParts(shifted, cal);
-    const text = new Intl.DateTimeFormat(isAr() ? `ar-SA-u-ca-${cal}` : `en-u-ca-${cal}`, { day: "numeric", month: "long", year: "numeric" }).format(shifted);
-    return { ...parts, text, cal };
+    return { ...hijriParts(shifted, cal), text: hijriText(shifted, cal), cal };
   } catch { return { d: 0, m: 0, y: 0, text: "" }; }
 }
-window.noorHijri = { hijri, hijriCal, hijriParts, HCAL_NAMES };
+window.noorHijri = { hijri, hijriCal, hijriParts, hijriText, HCAL_NAMES, tabular };
 function isRamadan() { return S.ramadan === "on" || (S.ramadan === "auto" && hijri().m === 9); }
 function ramadanDay() { const h = hijri(); return h.m === 9 ? h.d : Math.min(30, Math.max(1, store.get("ramDayManual", 1))); }
 
