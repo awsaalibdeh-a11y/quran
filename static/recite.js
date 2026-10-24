@@ -224,7 +224,7 @@ async function serverListen() {
       const fd = new FormData(); fd.append("audio", blob, "a.webm");
       fd.append("hint", R.words.slice(Math.max(0, R.i - 2), R.i + 30).map(w => w.text).join(" "));
       try {
-        const r = await fetch("/api/transcribe", { method: "POST", body: fd });
+        const r = await fetch(`${(window.NOOR && NOOR.api) || ""}/api/transcribe`, { method: "POST", body: fd });
         if (r.status === 503) { R.running = false; stopListening(); return noEngine(); }
         const j = await r.json(); if (j.text && R.running) { $("#rHeard").textContent = j.text; heardText(j.text, true); }
       } catch { toast(S.lang === "ar" ? "تحقق من الإنترنت" : "Check the internet"); }

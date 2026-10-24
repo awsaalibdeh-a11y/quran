@@ -90,9 +90,26 @@ def search(q, limit=60):
     return out, len(hits)
 
 
+# The Quran pages themselves are a static site on Hugging Face (free bandwidth); it calls back here only for search,
+# Sheikh Aws, recitation checking and offline audio, so those answer that site's requests too.
+STATIC_ORIGINS = {o.strip() for o in os.environ.get("NOOR_STATIC_ORIGINS", "https://death242-noor.static.hf.space").split(",") if o.strip()}
+
+
+@app.after_request
+def cors(resp):
+    o = request.headers.get("Origin", "")
+    if o in STATIC_ORIGINS and request.path.startswith(("/api/", "/audio/")):
+        resp.headers["Access-Control-Allow-Origin"] = o
+        resp.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+        resp.headers["Access-Control-Allow-Headers"] = "Content-Type"
+        resp.headers["Vary"] = "Origin"
+    return resp
+
+
 @app.get("/")
 def home():
-    return render_template("index.html", version=VERSION, homebase=os.environ.get("HOMEBASE_URL", HOMEBASE_URL).rstrip("/"), apk=os.path.exists(os.path.join(ROOT, "static", "noor.apk")) and "AwsaaApp" not in request.headers.get("User-Agent", ""))
+    return render_template("index.html", version=VERSION, homebase=os.environ.get("HOMEBASE_URL", HOMEBASE_URL).rstrip("/"), api=os.environ.get("NOOR_API", "").rstrip("/"),
+                           apk_url=os.environ.get("NOOR_APK_URL", "/noor.apk"), apk=os.path.exists(os.path.join(ROOT, "static", "noor.apk")) and "AwsaaApp" not in request.headers.get("User-Agent", ""))
 
 
 @app.get("/api/search")

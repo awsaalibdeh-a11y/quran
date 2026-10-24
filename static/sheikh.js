@@ -61,7 +61,7 @@ window.noorAsk = async text => {
   window.scrollTo(0, document.body.scrollHeight);
   busy = true; let answer = "";
   try {
-    const r = await fetch("/api/sheikh", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: msgs.slice(-12) }) });
+    const r = await fetch(`${(window.NOOR && NOOR.api) || ""}/api/sheikh`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: msgs.slice(-12) }) });
     if (!r.ok) { const j = await r.json().catch(() => ({})); answer = r.status === 503 ? L("Sheikh Aws isn't switched on yet. The app owner needs to add the AI key.", "الشيخ أوس غير مفعّل بعد. يحتاج صاحب التطبيق إلى إضافة مفتاح الذكاء الاصطناعي.") : (j.error || L("Something went wrong. Try again.", "حدث خطأ. حاول مرة أخرى.")); }
     else {
       const rd = r.body.getReader(), dec = new TextDecoder();

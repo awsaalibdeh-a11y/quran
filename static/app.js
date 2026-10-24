@@ -183,7 +183,7 @@ async function viewHome() {
     <div class="sec">${L("Popular", "سور مختارة")}</div>
     <div class="quick">${[[18, 1, "Al-Kahf", "الكهف"], [36, 1, "Ya-Sin", "يس"], [67, 1, "Al-Mulk", "الملك"], [2, 255, "Ayat al-Kursi", "آية الكرسي"], [55, 1, "Ar-Rahman", "الرحمن"], [56, 1, "Al-Waqi'ah", "الواقعة"], [2, 285, "End of Al-Baqarah", "خواتيم البقرة"]]
       .map(([s, a, en, ar]) => `<a class="pill" href="#/s/${s}/${a}">${isAr() ? ar : en}</a>`).join("")}</div>
-    <div class="foot"><b>${t("made")} Awsaa</b><br>${t("text")}${NOOR.apk ? `<br><a href="/noor.apk" style="color:var(--green);font-weight:700">${L("Get the Android app", "حمّل تطبيق أندرويد")}</a>` : ""}</div></div>`;
+    <div class="foot"><b>${t("made")} Awsaa</b><br>${t("text")}${NOOR.apk ? `<br><a href="${NOOR.apkUrl || "/noor.apk"}" style="color:var(--green);font-weight:700">${L("Get the Android app", "حمّل تطبيق أندرويد")}</a>` : ""}</div></div>`;
   nav("home"); heroCard(); daily(idx); if (window.noorHomeTasks) noorHomeTasks();
 }
 const tile = (href, ic, label) => `<a class="tile" href="${href}"><span class="ic">${ic}</span>${label}</a>`;
@@ -334,7 +334,7 @@ async function viewSearch(q) {
   const named = idx.surahs.filter(s => String(s.n) === qn || s.en.toLowerCase().replace(/[^a-z]/g, "").includes(qn) && qn.length > 2 || s.name.replace(/[ً-ٰٟ]/g, "").includes(q.replace(/[ً-ٰٟ]/g, "")) && q.length > 1);
   let html = named.slice(0, 5).map(surahRow).join("");
   try {
-    const r = await (await fetch("/api/search?q=" + encodeURIComponent(q))).json();
+    const r = await (await fetch(`${(window.NOOR && NOOR.api) || ""}/api/search?q=` + encodeURIComponent(q))).json();
     const hl = s => { const e = esc(s); if (/[؀-ۿ]/.test(q)) return e; const w = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); return e.replace(new RegExp(w, "gi"), m => `<mark>${m}</mark>`); };
     html += `<div style="color:var(--muted);padding:12px 4px 0;font-size:13px">${num(r.total)} ${t("results")}</div>` + r.results.map(x => `<a class="res" href="#/s/${x.s}/${x.a}">
       <div class="ref">${esc(isAr() ? x.name : x.surah)} ${num(x.s)}:${num(x.a)}</div><div class="ar">${x.ar}</div><div class="en">${hl(x.en)}</div></a>`).join("");
@@ -361,7 +361,7 @@ function viewTasbih() {
 /* ---------- player: one ayah at a time, from the saved copy when there is one ---------- */
 const reciter = () => RECITERS.find(x => x.id === S.reciter) || RECITERS[0];
 const audioCache = () => caches.open("noor-audio-v1");
-const localUrl = (r, g) => `/audio/${r}/${g}.mp3`;
+const localUrl = (r, g) => `${(window.NOOR && NOOR.api) || ""}/audio/${r}/${g}.mp3`;
 const player = {
   audio: new Audio(), s: 0, a: 0, count: 0, repeat: 1, left: 1, playing: false, blob: null,
   async src(g) {
