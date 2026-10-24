@@ -16,6 +16,8 @@ VERSION = "3.2"
 HOMEBASE_URL = os.environ.get("HOMEBASE_URL", "https://homebase-family.onrender.com").rstrip("/")
 
 app = Flask(__name__)
+from flask_compress import Compress  # noqa: E402  (gzip pages, JSON and scripts: Render's free plan counts bandwidth)
+Compress(app)
 app.config["JSON_AS_ASCII"] = False
 import hubguard  # noqa: E402  (the owner's universal switches, kept in Cramly)
 hubguard.install(app, "noor")
@@ -139,18 +141,27 @@ RECITER_KBPS = {"ar.mahermuaiqly": 128, "ar.alafasy": 128, "ar.abdulbasitmuratta
                 "ar.abdurrahmaansudais": 64, "ar.saoodshuraym": 64, "ar.hudhaify": 128, "ar.muhammadayyoub": 128, "ar.shaatree": 128, "ar.ahmedajamy": 128, "ar.muhammadjibreel": 128, "ar.husarymujawwad": 128, "ar.minshawimujawwad": 64, "ar.abdulsamad": 64, "ar.abdullahbasfar": 64, "ar.hanirifai": 64, "ar.aymanswoaid": 64, "ar.ibrahimakhbar": 32, "ar.parhizgar": 48}
 
 
+AUDIO_DAILY_MB = int(os.environ.get("AUDIO_DAILY_MB", "60"))      # about 1.8 GB a month at most
+_audio_day = {"d": "", "bytes": 0}
+
+
 @app.get("/audio/<reciter>/<int:g>.mp3")
 def audio(reciter, g):
     """The same recitation files as the CDN, from this site, so the app can save them for listening offline
     (the CDN does not allow pages to save its files)."""
     if reciter not in RECITER_KBPS or not 1 <= g <= 6236:
         return "", 404
+    today = time.strftime("%Y-%m-%d")
+    if _audio_day["d"] != today: _audio_day.update(d=today, bytes=0)
+    if _audio_day["bytes"] > AUDIO_DAILY_MB * 1_000_000:          # Render's free plan includes 5 GB a month in total
+        return "", 429
     try:
         r = requests.get(f"https://cdn.islamic.network/quran/audio/{RECITER_KBPS[reciter]}/{reciter}/{g}.mp3", timeout=20)
     except requests.RequestException:
         return "", 502
     if r.status_code != 200:
         return "", 502
+    _audio_day["bytes"] += len(r.content)
     resp = app.response_class(r.content, mimetype="audio/mpeg")
     resp.headers["Cache-Control"] = "public, max-age=604800"
     return resp
